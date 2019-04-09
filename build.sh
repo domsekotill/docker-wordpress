@@ -1,7 +1,7 @@
 #!/bin/bash
 
 get_latest() {
-	curl -sSL 'http://api.wordpress.org/core/version-check/1.7/' |
+	wget -O- 'http://api.wordpress.org/core/version-check/1.7/' |
 		sed -r 's/^.*"current":"([^"]+)".*$/\1/'
 }
 
