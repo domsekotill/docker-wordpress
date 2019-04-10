@@ -6,7 +6,7 @@ get_latest() {
 }
 
 get_version() {
-	echo "${UPSTREAM_VERSION}"
+	docker run --rm $1 wp core version
 }
 
 build() {

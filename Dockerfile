@@ -28,15 +28,15 @@ LABEL uk.org.kodo.maintainer "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 
 COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
+COPY wp.sh /usr/local/bin/wp
+ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp.php
 
 WORKDIR /app
 VOLUME /app/wp-content
 ENV WORDPRESS_ROOT=/app
 
 ARG wp_version=latest
-ARG wp_sha1=
-ADD install.sh /install.sh
-RUN /install.sh "${wp_version}" "${wp_sha1}" && rm /install.sh
+RUN wp core download --skip-content --locale=en_GB --version=${wp_version}
 
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY entrypoint.sh /bin/entrypoint
