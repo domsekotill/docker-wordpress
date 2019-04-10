@@ -10,6 +10,15 @@ get_version() {
 }
 
 build() {
+	# Get cached version of compile stage from registry if available
+	docker_pull ${DOCKER_REPOSITORY}/compile:latest
+
+	# Build compile stage cache, from last cached version if available
+	docker_build \
+		--target compile \
+		--tag ${DOCKER_REPOSITORY}/compile:latest
+	docker_push ${DOCKER_REPOSITORY}/compile:latest
+
 	docker_build \
 		--build-arg wp_version="${UPSTREAM_VERSION}" \
 		--tag $1
