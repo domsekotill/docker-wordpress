@@ -5,13 +5,13 @@ set -eu
 WP_ROOT=${WORDPRESS_ROOT:-/var/www/html}
 WP_CONTENT=${WP_ROOT}/wp-content
 WP_CONFIG=${WP_ROOT}/wp-config.php
-
-die() { echo "$*" >&2; exit 1; }
+MYSQL_CONF=/etc/wordpress/mysql.conf
 
 genkey() { head -c1M /dev/urandom | sha1sum | cut -d' ' -f1; }
 
 create_config()
 {
+source ${MYSQL_CONF}
 cat > $WP_CONFIG <<END_CONFIG
 <?php
 /**
@@ -53,8 +53,10 @@ run_setup()
 	# setup entrypoint
 	# ----------------
 	# Setup the database, install the scripts & make a config
-	
-	source /etc/wordpress/mysql.conf
+
+	if [ -e ${MYSQL_CONF} ]; then
+		source ${MYSQL_CONF}
+	fi
 
 	# parse command line arguments
 	SHIFT=shift
@@ -73,49 +75,50 @@ run_setup()
 				continue
 				;;
 
-			-h|--host) exec DB_HOST=$POP ;;
-			-d|--database) exec DB_NAME=$POP ;;
-			-u|--user) exec DB_USER=$POP ;;
-			-p|--password) exec DB_PASSWORD=$POP ;;
+			-c|--clear) unset DB_HOST DB_NAME DB_USER DB_PASSWORD ;;
+			-h|--host) eval ARG_HOST=$POP ;;
+			-d|--database) eval ARG_NAME=$POP ;;
+			-u|--user) eval ARG_USER=$POP ;;
+			-p|--password) eval ARG_PASSWORD=$POP ;;
 		esac
 		$SHIFT
 	done
 
 	# command line argument defaults
-	: ${DB_HOST:=mysql}
-	: ${DB_USER:="${DB_NAME?A database name is required}_user"}
-	: ${DB_PASSWORD:=}
+	: ${ARG_HOST:=${DB_HOST:-mysql}}
+	: ${ARG_NAME:=${DB_NAME?A database name is required}}
+	: ${ARG_USER:=${DB_USER:-${ARG_NAME}_user}}
+	: ${ARG_PASSWORD:=${DB_PASSWORD:-}}
 
-	create_config
+	cat >${MYSQL_CONF} <<-END
+		DB_HOST=${ARG_HOST}
+		DB_NAME=${ARG_NAME}
+		DB_USER=${ARG_USER}
+		DB_PASSWORD=${ARG_PASSWORD}
+	END
 }
 
-run_install()
-{
-	# overwrite current source onto deployed scripts
-	rm -r /usr/src/wordpress/wp-content/
-	cp -r /usr/src/wordpress/* ${WP_ROOT}/
-	mkdir -p ${WP_CONTENT}
-	# prevent core scripts from being overwritten by the application.
-	chown -R root:root ${WP_ROOT}/
-	# allow themes, plugins & content to be installed/managed by the application
-	chown -R www-data:www-data ${WP_CONTENT}
-}
-
-run_cmd()
-{
-	# main entrypoint
-	# ---------------
-	# Run the given command after sanity checks
-
-	# install/upgrade to volume from image source
-	run_install
-	# run setup entrypoint if it has not been run on this container before
-	test -e $WP_CONFIG || run_setup
-	# exec the command
-	exec "$@"
+update_all() {
+	wp core update --minor
+	wp plugin update --all
+	wp theme update --all
+	wp language core update
+	wp language plugin update --all
+	wp language theme update --all
 }
 
 case "$1" in
-	setup) run_install && shift && run_setup "$@" ;;
-	*) run_cmd "$@" ;;
+	setup)
+		shift
+		run_setup "$@"
+		;;
+	php-fpm)
+		create_config
+		update_all
+		exec "$@"
+		;;
+	*)
+		[ -e ${MYSQL_CONF} ] && create_config || true
+		exec "$@"
+		;;
 esac
