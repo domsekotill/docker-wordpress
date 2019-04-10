@@ -105,6 +105,9 @@ update_all() {
 	wp language core update
 	wp language plugin update --all
 	wp language theme update --all
+
+	find -name wp-content -prune -o -type f -not -iname '*.php' \
+		-exec install -vD '{}' 'static/{}' \;
 }
 
 case "$1" in
