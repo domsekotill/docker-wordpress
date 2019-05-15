@@ -12,9 +12,8 @@ genkey() { head -c${1:-1M} /dev/urandom | sha1sum | cut -d' ' -f1; }
 
 create_config()
 {
-	run_setup_secret
+	local key=$(genkey)
 	source ${MYSQL_CONF}
-	source ${SECRET_CONF}
 	cat > $WP_CONFIG <<-END_CONFIG
 		<?php
 		/**
@@ -32,10 +31,10 @@ create_config()
 
 		\$table_prefix = 'wp_';
 
-		define('AUTH_KEY',         '${AUTH_KEY}');
-		define('SECURE_AUTH_KEY',  '${SECURE_AUTH_KEY}');
-		define('LOGGED_IN_KEY',    '${LOGGED_IN_KEY}');
-		define('NONCE_KEY',        '${NONCE_KEY}');
+		define('AUTH_KEY',         '${key}');
+		define('SECURE_AUTH_KEY',  '${key}');
+		define('LOGGED_IN_KEY',    '${key}');
+		define('NONCE_KEY',        '${key}');
 		define('AUTH_SALT',        '`genkey 128`');
 		define('SECURE_AUTH_SALT', '`genkey 128`');
 		define('LOGGED_IN_SALT',   '`genkey 128`');
@@ -101,22 +100,6 @@ run_setup()
 	END
 }
 
-run_setup_secret()
-{
-	if [ -e ${SECRET_CONF} ]; then
-		return
-	fi
-
-	local key=$(genkey)
-
-	cat >${SECRET_CONF} <<-END
-		AUTH_KEY="${key}"
-		SECURE_AUTH_KEY="${key}"
-		LOGGED_IN_KEY="${key}"
-		NONCE_KEY="${key}"
-	END
-}
-
 update_all() {
 	wp core update --minor
 	wp plugin update --all
@@ -133,7 +116,6 @@ case "$1" in
 	setup)
 		shift
 		run_setup "$@"
-		run_setup_secret
 		;;
 	php-fpm)
 		create_config
