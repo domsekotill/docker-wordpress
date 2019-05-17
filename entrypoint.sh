@@ -108,7 +108,9 @@ update_all() {
 	wp language plugin update --all
 	wp language theme update --all
 
-	find -name wp-content -prune -o -type f -not -iname '*.php' \
+	find -name wp-content -prune \
+		-o -name static -prune \
+		-o -type f -not -iname '*.php' \
 		-exec install -vD '{}' 'static/{}' \;
 }
 
