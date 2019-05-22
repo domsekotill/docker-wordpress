@@ -1,7 +1,12 @@
 # syntax = docker/dockerfile:1.0-experimental
 
-FROM php:7.3-fpm as deps
+ARG nginx_version=latest
+FROM nginx:${nginx_version} as frontend
+LABEL uk.org.kodo.maintainer = "Dom Sekotill <dom.sekotill@kodo.org.uk>"
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+
+FROM php:7.3-fpm as deps
 RUN apt-get update \
  && apt-get install -y \
 	libgmp10 \
@@ -12,7 +17,6 @@ RUN apt-get update \
 
 
 FROM deps as compile
-
 RUN apt-get update \
  && apt-get install -y \
 	libgmp-dev \
