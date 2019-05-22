@@ -24,25 +24,12 @@ RUN apt-get update \
  &&:
 
 
-FROM debian:buster as theme-build
-
-RUN --mount=type=bind,source=sela-child,target=/src : \
- && apt-get update \
- && apt-get install -y \
-    zip \
- && mkdir -p /pkg \
- && cd /src \
- && zip -r /pkg/sela-child.zip . \
- &&:
-
-
 FROM deps
 
 LABEL uk.org.kodo.maintainer "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 
 COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
-COPY --from=theme-build /pkg /pkg
 COPY wp.sh /usr/local/bin/wp
 ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp.php
 

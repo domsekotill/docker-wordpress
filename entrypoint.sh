@@ -30,8 +30,8 @@ setup() {
 		-exec install -vD '{}' 'static/{}' \;
 }
 
-declare -a THEMES=( sela /pkg/sela-child.zip )
-declare -a PLUGINS
+declare -a THEMES=()
+declare -a PLUGINS=()
 
 for file in /etc/wordpress/*.conf /etc/wordpress/**/*.conf; do
 	source ${file}
@@ -39,6 +39,9 @@ done
 
 if [[ -e ${PLUGINS_LIST:=/etc/wordpress/plugins.txt} ]]; then
 	PLUGINS+=( $(<${PLUGINS_LIST}) )
+fi
+if [[ -e ${THEMES_LIST:=/etc/wordpress/themes.txt} ]]; then
+	THEMES+=( $(<${THEMES_LIST}) )
 fi
 
 case "$1" in
