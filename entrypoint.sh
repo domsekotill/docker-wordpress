@@ -25,6 +25,7 @@ setup() {
 	wp language theme update --all
 
 	find -name static -prune \
+		-name uploads -prune \
 		-o -type f -not -iname '*.php' \
 		-exec install -vD '{}' 'static/{}' \;
 }
