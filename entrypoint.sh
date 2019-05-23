@@ -4,6 +4,16 @@ shopt -s nullglob globstar
 
 declare -a THEMES=() PLUGINS=() LANGUAGES=()
 declare DB_HOST DB_NAME DB_USER DB_PASS
+declare -a STATIC_PATTERNS=(
+	"*.crt"
+	"*.md"
+	"*.[pm]o"
+	"*.txt"
+	"COPYING"
+	"LICEN[CS]E"
+	"README"
+	"readme.html"
+)
 
 create_config()
 {
@@ -35,13 +45,19 @@ setup() {
 	wp language plugin install --all "${LANGUAGES[@]}" || true
 	wp language theme install --all "${LANGUAGES[@]}" || true
 
+collect_static()
+{
+	declare -a args=()
+	for pattern in "${STATIC_PATTERNS[@]}"; do
+		args+=(-o -iname "$pattern")
+	done
 	find -name static -prune \
-		-name uploads -prune \
-		-o -type f -not -iname '*.php' \
+		-o -name uploads -prune \
+		-o -type f -not \( -iname '*.php' "${args[@]}" \) \
 		-exec install -vD '{}' 'static/{}' \;
 }
 
-for file in /etc/wordpress/*.conf /etc/wordpress/**/*.conf; do
+for file in /etc/wordpress/**/*.conf; do
 	source ${file}
 done
 
@@ -56,9 +72,11 @@ if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
 fi
 
 case "$1" in
+	collect-static) create_config && collect_static ;;
 	php-fpm)
 		create_config
 		setup
+		collect_static
 		exec "$@"
 		;;
 	*)
