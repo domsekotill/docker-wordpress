@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.0-experimental
 
 ARG nginx_version=latest
-FROM nginx:${nginx_version} as frontend
+FROM nginx:${nginx_version} as nginx
 LABEL uk.org.kodo.maintainer = "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
