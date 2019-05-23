@@ -9,8 +9,8 @@ create_config()
 		--skip-check \
 		--dbhost="${DB_HOST? Please set DB_HOST in /etc/wordpress/}" \
 		--dbname="${DB_NAME? Please set DB_NAME in /etc/wordpress/}" \
-		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
-		--dbpass="${DB_PASSWORD? Please set DB_PASSWORD in /etc/wordpress/}" \
+		${DB_USER+--dbuser=${DB_USER}} \
+		${DB_PASS+--dbpass=${DB_PASS}} \
 	<<-END_CONFIG
 		define('DISALLOW_FILE_MODS', true);
 	END_CONFIG
