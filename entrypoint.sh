@@ -29,6 +29,11 @@ create_config()
 	END_CONFIG
 }
 
+db_setup()
+{
+	wp core install "$@"
+}
+
 setup() {
 	# Update pre-installed components
 	wp core update --minor
@@ -72,6 +77,7 @@ if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
 fi
 
 case "$1" in
+	db-setup) create_config && db_setup "${@:2}" ;;
 	collect-static) create_config && collect_static ;;
 	php-fpm)
 		create_config
