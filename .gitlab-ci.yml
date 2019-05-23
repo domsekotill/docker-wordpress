@@ -1,0 +1,61 @@
+image: docker:stable
+
+variables:
+  DOCKER_HOST: "tcp://docker:2375/"
+  DOCKER_DRIVER: "overlay2"
+  DOCKER_BUILDKIT: "1"
+
+services:
+- docker:dind
+
+before_script:
+- docker info
+- docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+- apk update && apk add bash
+
+
+.build: &build
+  stage: build
+  script:
+  - docker build .
+    --pull=true
+    --tag=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#build-}/build:${CI_PIPELINE_ID}
+    ${TARGET+--target=$TARGET}
+  after_script:
+  - docker push
+    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#build-}/build:${CI_PIPELINE_ID}
+
+build-fastcgi:
+  <<: *build
+build-nginx:
+  <<: *build
+  variables:
+    TARGET: nginx
+
+
+.push-tags: &push-tags
+  stage: deploy
+  when: manual
+  script:
+  - version=`eval "docker run --rm
+    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
+    ${GET_VERSION}"`
+  - docker pull
+    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
+  - docker tag
+    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
+    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:${version}
+  - docker tag
+    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
+    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:latest
+  - docker push ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:${version}
+  - docker push ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:latest
+
+push-fastcgi:
+  <<: *push-tags
+  variables:
+    GET_VERSION: wp core version
+push-nginx:
+  <<: *push-tags
+  variables:
+    GET_VERSION: nginx -V 2>&1 | sed -n '/nginx version:/s/.*nginx\///p'
