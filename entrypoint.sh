@@ -47,8 +47,9 @@ setup() {
 	wp plugin install "${PLUGINS[@]}"
 	wp theme install "${THEMES[@]}"
 	wp language core install "${LANGUAGES[@]}"
-	wp language plugin install --all "${LANGUAGES[@]}" || true
-	wp language theme install --all "${LANGUAGES[@]}" || true
+	wp language plugin install --all "${LANGUAGES[@]}"
+	wp language theme install --all "${LANGUAGES[@]}"
+}
 
 collect_static()
 {
