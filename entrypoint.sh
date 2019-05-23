@@ -10,9 +10,9 @@ create_config()
 	wp config create \
 		--extra-php \
 		--skip-check \
-		--dbhost="${DB_HOST? Please set DB_HOST in /etc/wordpress/}" \
 		--dbname="${DB_NAME? Please set DB_NAME in /etc/wordpress/}" \
-		${DB_USER+--dbuser=${DB_USER}} \
+		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
+		${DB_HOST+--dbhost=${DB_HOST}} \
 		${DB_PASS+--dbpass=${DB_PASS}} \
 	<<-END_CONFIG
 		define('DISALLOW_FILE_MODS', true);
@@ -62,7 +62,7 @@ case "$1" in
 		exec "$@"
 		;;
 	*)
-		[[ -v DB_HOST ]] && create_config || true
+		[[ -v DB_NAME ]] && create_config || true
 		exec "$@"
 		;;
 esac
