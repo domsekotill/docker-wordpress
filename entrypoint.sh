@@ -43,6 +43,9 @@ setup() {
 	wp language plugin update --all
 	wp language theme update --all
 
+	# Install required components
+	wp plugin install --activate password-hash
+
 	# Install configured components
 	wp plugin install "${PLUGINS[@]}"
 	wp theme install "${THEMES[@]}"
