@@ -12,7 +12,8 @@ RUN apt-get update \
 	libgmp10 \
 	libjpeg62 \
 	libpng16-16 \
-    libzip4 \
+	libzip4 \
+	rsync \
  &&:
 
 

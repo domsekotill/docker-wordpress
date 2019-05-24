@@ -58,14 +58,24 @@ setup() {
 
 collect_static()
 {
-	declare -a args=()
-	for pattern in "${STATIC_PATTERNS[@]}"; do
-		args+=(-o -iname "$pattern")
-	done
-	find -name static -prune \
-		-o -name uploads -prune \
-		-o -type f -not \( -iname '*.php' "${args[@]}" \) \
-		-exec install -vD '{}' 'static/{}' \;
+	local IFS=,
+	declare -a flags=(flist stats remove del)
+	test -t 1 && flags+=(progress2)
+	printf -- '- %s\n' "${STATIC_PATTERNS[@]}" |
+	rsync \
+		--checksum \
+		--delete-delay \
+		--exclude-from=- \
+		--exclude='*.php' \
+		--exclude=static/ \
+		--exclude=wp-content/uploads/ \
+		--force \
+		--info="${flags[*]}" \
+		--noatime \
+		--recursive \
+		--relative \
+		--times \
+		. static/
 }
 
 for file in /etc/wordpress/**/*.conf; do
