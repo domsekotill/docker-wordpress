@@ -37,7 +37,8 @@ WORKDIR /app
 VOLUME /app/wp-content
 ENV WORDPRESS_ROOT=/app
 
-ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar /usr/local/bin/wp.php
+ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    /usr/local/lib/wp-cli.phar
 COPY wp.sh /usr/local/bin/wp
 COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
