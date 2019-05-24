@@ -17,6 +17,13 @@ declare -a STATIC_PATTERNS=(
 
 create_config()
 {
+	if [[ ! -e wp-config.php ]]; then
+		:
+	elif [[ x${1-} = x-f ]]; then
+		rm wp-config.php
+	else
+		return 0
+	fi
 	wp config create \
 		--extra-php \
 		--skip-check \
@@ -27,11 +34,6 @@ create_config()
 	<<-END_CONFIG
 		define('DISALLOW_FILE_MODS', true);
 	END_CONFIG
-}
-
-db_setup()
-{
-	wp core install "$@"
 }
 
 setup() {
@@ -81,7 +83,8 @@ if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
 fi
 
 case "$1" in
-	db-setup) create_config && db_setup "${@:2}" ;;
+	database-setup) create_config -f && wp core install "${@:2}" ;;
+	install-setup) create_config && setup ;;
 	collect-static) create_config && collect_static ;;
 	php-fpm)
 		create_config
