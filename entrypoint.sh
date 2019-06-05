@@ -49,11 +49,11 @@ setup() {
 	wp plugin install --activate password-hash
 
 	# Install configured components
-	wp plugin install "${PLUGINS[@]}"
-	wp theme install "${THEMES[@]}"
-	wp language core install "${LANGUAGES[@]}"
-	wp language plugin install --all "${LANGUAGES[@]}"
-	wp language theme install --all "${LANGUAGES[@]}"
+	[[ ${#PLUGINS[*]} -gt 0 ]] && wp plugin install "${PLUGINS[@]}"
+	[[ ${#THEMES[*]} -gt 0 ]] && wp theme install "${THEMES[@]}"
+	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language core install "${LANGUAGES[@]}"
+	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language plugin install --all "${LANGUAGES[@]}"
+	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language theme install --all "${LANGUAGES[@]}"
 }
 
 collect_static()
