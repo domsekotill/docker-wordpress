@@ -8,6 +8,7 @@ declare -a STATIC_PATTERNS=(
 	"*.crt"
 	"*.md"
 	"*.[pm]o"
+	"*.pot"
 	"*.txt"
 	"COPYING"
 	"LICEN[CS]E"
