@@ -55,6 +55,10 @@ setup() {
 	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language core install "${LANGUAGES[@]}"
 	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language plugin install --all "${LANGUAGES[@]}"
 	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language theme install --all "${LANGUAGES[@]}"
+
+	[[ ${#THEMES[*]} -gt 0 ]] &&
+	[[ $(wp theme list --status=active --format=count) -eq 0 ]] &&
+	wp theme activate $(wp theme list --field=name | head -n1)
 }
 
 collect_static()
