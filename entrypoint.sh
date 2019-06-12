@@ -26,6 +26,9 @@ declare -a STATIC_PATTERNS=(
 
 create_config()
 {
+	local IFS=$'\n'
+	local additional_config
+
 	if [[ ! -e wp-config.php ]]; then
 		:
 	elif [[ x${1-} = x-f ]]; then
@@ -33,6 +36,12 @@ create_config()
 	else
 		return 0
 	fi
+
+	[[ ${WP_CONFIG_EXTRA:=/etc/wordpress/wp_config_extra.php} =~ ^/ ]] ||
+		WP_CONFIG_EXTRA=/etc/wordpress/${WP_CONFIG_EXTRA}
+	[[ -r ${WP_CONFIG_EXTRA} ]] &&
+		additional_config=${WP_CONFIG_EXTRA}
+
 	wp config create \
 		--extra-php \
 		--skip-check \
@@ -42,6 +51,14 @@ create_config()
 		${DB_PASS+--dbpass=${DB_PASS}} \
 	<<-END_CONFIG
 		define('DISALLOW_FILE_MODS', true);
+
+		/* BEGIN WP_CONFIG_LINES */
+		${WP_CONFIG_LINES[*]}
+		/* END WP_CONFIG_LINES */
+
+		/* BEGIN ${WP_CONFIG_EXTRA} */
+		${additional_config+$(<$additional_config)}
+		/* END ${WP_CONFIG_EXTRA} */
 	END_CONFIG
 }
 
