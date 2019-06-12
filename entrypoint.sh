@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -eu -o pipefail
 shopt -s nullglob globstar
 
 declare -a THEMES=() PLUGINS=() LANGUAGES=()
