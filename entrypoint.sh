@@ -52,6 +52,12 @@ create_config()
 	<<-END_CONFIG
 		define('DISALLOW_FILE_MODS', true);
 
+		/*
+		 * Move the uploads volume/directory into the top of the Wordpress 
+		 * installation.
+		 */
+		define('UPLOADS', 'media');
+
 		/* BEGIN WP_CONFIG_LINES */
 		${WP_CONFIG_LINES[*]}
 		/* END WP_CONFIG_LINES */
@@ -98,7 +104,7 @@ collect_static()
 		--exclude-from=- \
 		--exclude='*.php' \
 		--exclude=static/ \
-		--exclude=wp-content/uploads/ \
+		--exclude=media/ \
 		--force \
 		--info="${flags[*]}" \
 		--noatime \
