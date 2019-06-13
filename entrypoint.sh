@@ -50,6 +50,12 @@ create_config()
 		${DB_HOST+--dbhost=${DB_HOST}} \
 		${DB_PASS+--dbpass=${DB_PASS}} \
 	<<-END_CONFIG
+		/*
+		 * Plugins, themes and language packs cannot be configured through the 
+		 * admin interface; modify the configuration in /etc/wordpress/ 
+		 * according to the documentation for PLUGINS[_LIST], THEMES[_LIST] and 
+		 * LANGUAGES[_LIST]
+		 */
 		define('DISALLOW_FILE_MODS', true);
 
 		/*

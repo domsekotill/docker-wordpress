@@ -1,0 +1,151 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+data:
+  plugins.txt: |
+    cache-control
+    wp-mail-smtp
+    wp-statistics
+  wordpress.conf: |
+    THEMES=( twentyeighteen twentynineteen )
+    LANGUAGES+=( en_GB fr_FR de_DE )
+
+---
+
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: my-app-cert
+data:
+  tls.crt: …
+  tls.key: …
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-app-mysql-pass
+data:
+  mysql.conf: |
+    REJfSE9TVD1teXNxbC5leGFtcGxlLmNvbQpEQl9OQU1FPWV4YW1wbGVfZGIKREJfVVNFUj1leGFt
+    cGxlX3VzZXIKREJfUEFTUz1aWGhoYlhCc1pWQmhjM04zYjNKa0NnCg==
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-app-media
+spec:
+  accessModes:
+  - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  labels:
+    app: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: fastcgi
+        image: docker.kodo.org.uk/singing-chimes.co.uk/wordpress/fastcgi:latest
+        imagePullPolicy: Always
+        volumeMounts:
+
+        # Keep MySQL credentials in a Secret
+        - name: mysql-pass
+          mountPath: /etc/wordpress/secret
+
+        # Rest of the config
+        - name: config
+          mountPath: /etc/wordpress
+
+        # Shared non-persistent volume
+        - name: static
+          mountPath: /app/static
+
+        # Shared persistent user-media volume
+        - name: media
+          mountPath: /app/media
+
+        readinessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: 9000
+
+      - name: http
+        image: docker.kodo.org.uk/singing-chimes.co.uk/wordpress/nginx:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: static
+          mountPath: /app/static
+        - name: media
+          mountPath: /app/media
+
+      volumes:
+      - name: mysql-pass
+        secret:
+          secretName: my-app-mysql-pass
+      - name: config
+        configMap:
+          name: my-app-config
+      - name: static
+        emptyDir: {}
+      - name: media
+        persistentVolumeClaim:
+          claimName: my-app-media
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app
+spec:
+  selector:
+    app: my-app
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-app
+  annotations:
+    nginx.org/hsts: True
+spec:
+  tls:
+  - hosts: [my-app.co.uk]
+    secretName: my-app-cert
+
+  rules:
+  - host: my-app.co.uk
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: my-app
+          servicePort: http
