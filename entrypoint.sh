@@ -37,7 +37,7 @@ create_config()
 		return 0
 	fi
 
-	[[ ${WP_CONFIG_EXTRA:=/etc/wordpress/wp_config_extra.php} =~ ^/ ]] ||
+	[[ ${WP_CONFIG_EXTRA:=/etc/wordpress/wp-config-extra.php} =~ ^/ ]] ||
 		WP_CONFIG_EXTRA=/etc/wordpress/${WP_CONFIG_EXTRA}
 	[[ -r ${WP_CONFIG_EXTRA} ]] &&
 		additional_config=${WP_CONFIG_EXTRA}
