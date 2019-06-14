@@ -9,6 +9,7 @@
 
 set -eu -o pipefail
 shopt -s nullglob globstar
+enable -f /usr/lib/bash/sleep sleep
 
 declare -a THEMES=() PLUGINS=() LANGUAGES=()
 declare DB_HOST DB_NAME DB_USER DB_PASS
@@ -59,6 +60,12 @@ create_config()
 		define('DISALLOW_FILE_MODS', true);
 
 		/*
+		 * Disable running wp-cron.php on every page load.
+		 * Instead corn jobs will be run every 15 minutes.
+		 */
+		define('DISABLE_WP_CRON', true);
+
+		/*
 		 * Move the uploads volume/directory into the top of the Wordpress 
 		 * installation.
 		 */
@@ -95,7 +102,8 @@ setup() {
 
 	[[ ${#THEMES[*]} -gt 0 ]] &&
 	[[ $(wp theme list --status=active --format=count) -eq 0 ]] &&
-	wp theme activate $(wp theme list --field=name | head -n1)
+	wp theme activate $(wp theme list --field=name | head -n1) ||
+	true
 }
 
 collect_static()
@@ -120,6 +128,14 @@ collect_static()
 		. static/
 }
 
+run_cron()
+{
+	local interval=60
+	while sleep $(wp cron schedule list --field=interval | head -n1); do
+		wp cron event run --due-now
+	done
+}
+
 for file in /etc/wordpress/**/*.conf; do
 	source ${file}
 done
@@ -138,10 +154,12 @@ case "$1" in
 	database-setup) create_config -f && wp core install "${@:2}" ;;
 	install-setup) create_config && setup ;;
 	collect-static) create_config && collect_static ;;
+	run-cron) create_config && run_cron ;;
 	php-fpm)
 		create_config
 		setup
 		collect_static
+		run_cron &
 		exec "$@"
 		;;
 	*)

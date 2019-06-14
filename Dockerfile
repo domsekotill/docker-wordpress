@@ -9,6 +9,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 FROM php:7.3-fpm as deps
 RUN apt-get update \
  && apt-get install -y \
+    bash-builtins \
 	libgmp10 \
 	libjpeg62 \
 	libpng16-16 \
