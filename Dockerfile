@@ -10,20 +10,20 @@ FROM php:7.3-fpm as deps
 RUN apt-get update \
  && apt-get install -y \
     bash-builtins \
-	libgmp10 \
-	libjpeg62 \
-	libpng16-16 \
-	libzip4 \
-	rsync \
+    libgmp10 \
+    libjpeg62 \
+    libpng16-16 \
+    libzip4 \
+    rsync \
  &&:
 
 
 FROM deps as compile
 RUN apt-get update \
  && apt-get install -y \
-	libgmp-dev \
-	libjpeg-dev \
-	libpng-dev \
+    libgmp-dev \
+    libjpeg-dev \
+    libpng-dev \
     libzip-dev \
  && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
  && docker-php-ext-install gd mysqli opcache gmp zip \
