@@ -45,6 +45,7 @@ COPY wp.sh /usr/local/bin/wp
 COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
 RUN wp core download --skip-content --locale=en_GB --version=${wp_version} \
+ && rm wp-config-sample.php \
  && mkdir -p media && chmod go+w media
 
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
