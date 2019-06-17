@@ -46,7 +46,11 @@ COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
 RUN wp core download --skip-content --locale=en_GB --version=${wp_version} \
  && rm wp-config-sample.php \
- && mkdir -p media && chmod go+w media
+ && mkdir --mode=go+w media \
+ && mkdir -p wp-content/mu-plugins \
+ && curl https://raw.githubusercontent.com/Ayesh/WordPress-Password-Hash/1.5.1/wp-php-password-hash.php \
+  > wp-content/mu-plugins/password-hash.php \
+ &&:
 
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY entrypoint.sh /bin/entrypoint
