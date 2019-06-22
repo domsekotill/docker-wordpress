@@ -119,6 +119,7 @@ collect_static()
 		--force \
 		--info="${flags[*]}" \
 		--noatime \
+		--prune-empty-dirs \
 		--recursive \
 		--relative \
 		--times \
