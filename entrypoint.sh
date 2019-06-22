@@ -48,8 +48,8 @@ create_config()
 		--skip-check \
 		--dbname="${DB_NAME? Please set DB_NAME in /etc/wordpress/}" \
 		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
-		${DB_HOST+--dbhost=${DB_HOST}} \
-		${DB_PASS+--dbpass=${DB_PASS}} \
+		${DB_HOST+--dbhost="${DB_HOST}"} \
+		${DB_PASS+--dbpass="${DB_PASS}"} \
 	<<-END_CONFIG
 		/*
 		 * Plugins, themes and language packs cannot be configured through the 
@@ -134,17 +134,17 @@ run_cron()
 }
 
 for file in /etc/wordpress/**/*.conf; do
-	source ${file}
+	source "${file}"
 done
 
 if [[ -e ${PLUGINS_LIST:=/etc/wordpress/plugins.txt} ]]; then
-	PLUGINS+=( $(<${PLUGINS_LIST}) )
+	PLUGINS+=( $(<"${PLUGINS_LIST}") )
 fi
 if [[ -e ${THEMES_LIST:=/etc/wordpress/themes.txt} ]]; then
-	THEMES+=( $(<${THEMES_LIST}) )
+	THEMES+=( $(<"${THEMES_LIST}") )
 fi
 if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
-	LANGUAGES+=( $(<${LANGUAGES_LIST}) )
+	LANGUAGES+=( $(<"${LANGUAGES_LIST}") )
 fi
 
 case "$1" in
