@@ -9,7 +9,6 @@
 
 set -eu -o pipefail
 shopt -s nullglob globstar
-enable -f /usr/lib/bash/sleep sleep
 
 declare -a THEMES=() PLUGINS=() LANGUAGES=()
 declare DB_HOST DB_NAME DB_USER DB_PASS
@@ -133,10 +132,18 @@ next_cron()
 
 run_cron()
 {
+	enable -f /usr/lib/bash/sleep sleep
 	while wp cron event run --due-now || true; do
 		sleep $(next_cron)
 	done
 }
+
+run_background_cron()
+{ (
+	export -f next_cron run_cron
+	exec -a wp-cron /bin/bash <<<run_cron
+)& }
+
 
 for file in /etc/wordpress/**/*.conf; do
 	source "${file}"
@@ -161,7 +168,7 @@ case "$1" in
 		create_config
 		setup
 		collect_static
-		run_cron &
+		run_background_cron
 		exec "$@"
 		;;
 	*)
