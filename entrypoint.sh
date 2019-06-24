@@ -126,11 +126,15 @@ collect_static()
 		. static/
 }
 
+next_cron()
+{
+	echo $(($(wp cron event list --field=time|sort|head -n1) - $(date +%s)))
+}
+
 run_cron()
 {
-	local interval=60
-	while sleep $(wp cron schedule list --field=interval | head -n1); do
-		wp cron event run --due-now
+	while wp cron event run --due-now || true; do
+		sleep $(next_cron)
 	done
 }
 
