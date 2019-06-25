@@ -55,5 +55,8 @@ RUN wp core download --skip-content --locale=en_GB --version=${wp_version} \
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY entrypoint.sh /bin/entrypoint
 
+# PAGER is used by the wp-cli tool, the default 'less' is not installed
+ENV PAGER=more
+
 ENTRYPOINT ["/bin/entrypoint"]
 CMD ["php-fpm"]
