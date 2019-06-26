@@ -23,9 +23,6 @@ Two images are produced from the Dockerfile:
     PHP-FPM server.
 
 
-[^1]: In a future release Simple Storage Service (S3) services may be 
-  supported out-of-the-box.
-
 [php-fpm]: https://php-fpm.org/
 
 
@@ -70,13 +67,17 @@ DOCKER_BUILDKIT=1 docker build -t wordpress-nginx:tag --target=nginx .
 ```
 
 
+---
+
+[^1]: In a future release Simple Storage Service (S3) services may be 
+  supported out-of-the-box.
 
 [buildkit]:
   https://docs.docker.com/develop/develop-images/build_enhancements/
   "Build Enhancements for Docker"
 
 [gitlab-ico]:
-  https://img.shields.io/badge/-GitLab-blue.svg?logo=gitlab
+  https://img.shields.io/badge/GitLab-code.kodo.org.uk-blue.svg?logo=gitlab
   "GitLab"
 
 [gitlab-link]:
@@ -84,7 +85,7 @@ DOCKER_BUILDKIT=1 docker build -t wordpress-nginx:tag --target=nginx .
   "Go to the project at code.kodo.org.uk"
 
 [github-ico]:
-  https://img.shields.io/badge/-GitHub-blue.svg?logo=github
+  https://img.shields.io/badge/GitHub-domsekotill/docker--wordpress-blue.svg?logo=github
   "GitHub"
 
 [github-link]:
