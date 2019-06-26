@@ -54,21 +54,26 @@ deployment of pods running these services.
 Build
 -----
 
-**Note:** Building manually requires Docker 17.05 or later.
+**Note:** Building manually requires Docker 18.09 or later with the 
+[Buildkit][] feature enabled.
 
 To build the PHP-FPM image run:
 
 ```shell
-docker build -t wordpress:tag .
+DOCKER_BUILDKIT=1 docker build -t wordpress:tag .
 ```
 
 To build the Nginx companion image, run:
 
 ```shell
-docker build -t wordpress-nginx:tag --target=nginx .
+DOCKER_BUILDKIT=1 docker build -t wordpress-nginx:tag --target=nginx .
 ```
 
 
+
+[buildkit]:
+  https://docs.docker.com/develop/develop-images/build_enhancements/
+  "Build Enhancements for Docker"
 
 [gitlab-ico]:
   https://img.shields.io/badge/-GitLab-blue.svg?logo=gitlab
