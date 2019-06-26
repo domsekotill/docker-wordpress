@@ -6,25 +6,27 @@ LABEL uk.org.kodo.maintainer = "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 
-FROM php:7.3-fpm as deps
-RUN apt-get update \
- && apt-get install -y \
-    bash-builtins \
-    libgmp10 \
-    libjpeg62 \
-    libmagickwand-6.q16-3 \
-    libpng16-16 \
-    libzip4 \
+FROM php:7.3-fpm-alpine as deps
+RUN apk update \
+ && apk add \
+    bash \
+    imagemagick-libs \
+    libgmpxx \
+    libjpeg \
+    libpng \
+    libzip \
     rsync \
  &&:
 
 
 FROM deps as compile
-RUN apt-get update \
- && apt-get install -y \
-    libgmp-dev \
-    libjpeg-dev \
-    libmagickwand-6.q16-dev \
+RUN apk update \
+ && apk add \
+    autoconf \
+    build-base \
+    gmp-dev \
+    imagemagick-dev \
+    jpeg-dev \
     libpng-dev \
     libzip-dev \
  && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \

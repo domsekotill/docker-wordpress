@@ -132,7 +132,7 @@ collect_static()
 		--exclude=media/ \
 		--force \
 		--info="${flags[*]}" \
-		--noatime \
+		--times \
 		--prune-empty-dirs \
 		--recursive \
 		--relative \
