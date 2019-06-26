@@ -10,6 +10,8 @@
 set -eu -o pipefail
 shopt -s nullglob globstar
 
+declare -r DEFAULT_THEME=twentynineteen
+
 declare -a THEMES=() PLUGINS=() LANGUAGES=()
 declare DB_HOST DB_NAME DB_USER DB_PASS
 declare -a STATIC_PATTERNS=(
@@ -89,6 +91,9 @@ setup() {
 	wp language plugin update --all
 	wp language theme update --all
 
+	# Ensure at least one theme is installed
+	[[ ${#THEMES[*]} -eq 0 ]] && THEMES+=( ${DEFAULT_THEME} )
+
 	# Install configured components
 	[[ ${#PLUGINS[*]} -gt 0 ]] && wp plugin install "${PLUGINS[@]}"
 	[[ ${#THEMES[*]} -gt 0 ]] && wp theme install "${THEMES[@]}"
@@ -96,10 +101,11 @@ setup() {
 	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language plugin install --all "${LANGUAGES[@]}"
 	[[ ${#LANGUAGES[*]} -gt 0 ]] && wp language theme install --all "${LANGUAGES[@]}"
 
-	[[ ${#THEMES[*]} -gt 0 ]] &&
+	# Ensure a theme is active
 	[[ $(wp theme list --status=active --format=count) -eq 0 ]] &&
-	wp theme activate $(wp theme list --field=name | head -n1) ||
-	true
+		wp theme activate $(wp theme list --field=name | head -n1)
+
+	return 0
 }
 
 collect_static()
