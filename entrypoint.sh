@@ -82,7 +82,16 @@ create_config()
 	END_CONFIG
 }
 
-setup() {
+setup_database() {
+	wp core install "$@"
+
+	# Start with a pretty, restful permalink structure, instead of the plain, 
+	# ugly default. The user can change this as they please through the admin 
+	# dashboard.
+	wp rewrite structure /posts/%postname%
+}
+
+setup_components() {
 	# Update pre-installed components
 	wp core update --minor
 	wp plugin update --all
@@ -166,13 +175,13 @@ if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
 fi
 
 case "$1" in
-	database-setup) create_config -f && wp core install "${@:2}" ;;
-	install-setup) create_config && setup ;;
+	database-setup) create_config -f && setup_database "${@:2}" ;;
+	install-setup) create_config && setup_components ;;
 	collect-static) create_config && collect_static ;;
 	run-cron) create_config && run_cron ;;
 	php-fpm)
 		create_config
-		setup
+		setup_components
 		collect_static
 		run_background_cron
 		exec "$@"
