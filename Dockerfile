@@ -12,6 +12,7 @@ RUN apt-get update \
     bash-builtins \
     libgmp10 \
     libjpeg62 \
+    libmagickwand-6.q16-3 \
     libpng16-16 \
     libzip4 \
     rsync \
@@ -23,10 +24,22 @@ RUN apt-get update \
  && apt-get install -y \
     libgmp-dev \
     libjpeg-dev \
+    libmagickwand-6.q16-dev \
     libpng-dev \
     libzip-dev \
  && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
- && docker-php-ext-install gd mysqli opcache gmp zip \
+ && docker-php-ext-install \
+    bcmath \
+    exif \
+    gd \
+    gmp \
+    mysqli \
+    opcache \
+    sockets \
+    zip \
+ && pecl install \
+    imagick \
+ && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini \
  &&:
 
 
