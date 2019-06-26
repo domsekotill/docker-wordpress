@@ -1,6 +1,11 @@
 Wordpress for Docker
 ====================
 
+[![gitlab-ico]][gitlab-link]
+[![github-ico]][github-link]
+[![licence-mpl20]](/COPYING)
+[![pipeline-status]][pipeline-report]
+
 Docker images for Wordpress.
 
 The primary aim is to be secure and easy to deploy.  Unlike other Wordpress 
@@ -62,3 +67,32 @@ To build the Nginx companion image, run:
 ```shell
 docker build -t wordpress-nginx:tag --target=nginx .
 ```
+
+
+
+[gitlab-ico]:
+  https://img.shields.io/badge/-GitLab-blue.svg?logo=gitlab
+  "GitLab"
+
+[gitlab-link]:
+  https://code.kodo.org.uk/singing-chimes.co.uk/wordpress
+  "Go to the project at code.kodo.org.uk"
+
+[github-ico]:
+  https://img.shields.io/badge/-GitHub-blue.svg?logo=github
+  "GitHub"
+
+[github-link]:
+  https://github.com/domsekotill/docker-wordpress
+  "Go to the project at github.com"
+
+[licence-mpl20]:
+  https://img.shields.io/badge/License-MPL--2.0-blue.svg
+  "Licence: Mozilla Public License 2.0"
+
+[pipeline-status]:
+  https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/badges/master/pipeline.svg
+
+[pipeline-report]:
+  https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/pipelines?ref=master
+  "Pipelines"
