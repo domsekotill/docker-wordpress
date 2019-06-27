@@ -134,9 +134,9 @@ The path to a file containing lines to append to [**PLUGINS**](#plugins).
 
 An array of "key=value" strings declaring [PHP directives][].
 
-**Note:** These values may alternatively be supplied as container command 
-arguments prefixed with the '-d' flag:
-`-d upload_max_filesize=20M -d post_max_size=20M`
+> **Note:** These values may alternatively be supplied as container command 
+> arguments preceded by the '-d' flag:
+> `-d upload_max_filesize=20M -d post_max_size=20M`
 
 ### STATIC_PATTERNS
 
@@ -148,8 +148,8 @@ data files
 This is an array of shell wildcard patterns (non-GNU extensions) matching 
 files which will NOT be copied to the static files directory.
 
-**Note:** Files with a .php extension are never copied to the static files 
-directory.
+> **Note:** Files with a .php extension are never copied to the static files 
+> directory.
 
 ### THEMES
 

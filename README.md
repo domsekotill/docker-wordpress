@@ -51,8 +51,8 @@ deployment of pods running these services.
 Build
 -----
 
-**Note:** Building manually requires Docker 18.09 or later with the 
-[Buildkit][] feature enabled.
+> **Note:** Building manually requires Docker 18.09 or later with the 
+> [Buildkit][] feature enabled.
 
 To build the PHP-FPM image run:
 
