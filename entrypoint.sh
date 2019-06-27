@@ -27,6 +27,12 @@ declare -a STATIC_PATTERNS=(
 	"README"
 	"readme.html"
 )
+declare -a PHP_DIRECTIVES=(
+	${PHP_DIRECTIVES-}
+	upload_max_filesize=20M
+	post_max_size=20M
+)
+
 
 create_config()
 {
@@ -176,6 +182,12 @@ if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
 	LANGUAGES+=( $(<"${LANGUAGES_LIST}") )
 fi
 
+declare -a extra_args
+
+for directive in "${PHP_DIRECTIVES[@]}"; do
+	extra_args+=( -d "${directive}" )
+done
+
 case "$1" in
 	database-setup) create_config -f && setup_database "${@:2}" ;;
 	install-setup) create_config && setup_components ;;
@@ -186,7 +198,7 @@ case "$1" in
 		setup_components
 		collect_static
 		run_background_cron
-		exec "$@"
+		exec "$@" "${extra_args[@]}"
 		;;
 	*)
 		[[ -v DB_NAME ]] && create_config || true

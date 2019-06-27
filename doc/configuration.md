@@ -126,6 +126,18 @@ be the latest stable available in the wordpress.org registry.
 
 The path to a file containing lines to append to [**PLUGINS**](#plugins).
 
+### PHP_DIRECTIVES
+
+**Type**: array\
+**Required**: no\
+**Default**: "upload_max_filesize=20M", "post_max_size=20M"
+
+An array of "key=value" strings declaring [PHP directives][].
+
+**Note:** These values may alternatively be supplied as container command 
+arguments prefixed with the '-d' flag:
+`-d upload_max_filesize=20M -d post_max_size=20M`
+
 ### STATIC_PATTERNS
 
 **Type**: array\
@@ -173,3 +185,8 @@ to go near the end of the file.
 This is an array of lines (without terminating carriage-returns) to add to 
 *wp-config.php* just before the contents of the file in 
 [**WP_CONFIG_EXTRA**](#wp_config_extra).
+
+
+[php directives]:
+  https://www.php.net/manual/en/ini.list.php
+  "PHP: List of php.ini directives"
