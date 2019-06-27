@@ -12,8 +12,10 @@ shopt -s nullglob globstar
 
 declare -r DEFAULT_THEME=twentynineteen
 
-declare -a THEMES=() PLUGINS=() LANGUAGES=()
 declare DB_HOST DB_NAME DB_USER DB_PASS
+declare -a THEMES=( ${THEMES-} )
+declare -a PLUGINS=( ${PLUGINS-} )
+declare -a LANGUAGES=( ${LANGUAGES-} )
 declare -a STATIC_PATTERNS=(
 	"*.crt"
 	"*.md"

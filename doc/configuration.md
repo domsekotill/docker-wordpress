@@ -31,6 +31,20 @@ zz-final.conf
 ```
 
 
+Environment Variables
+---------------------
+
+Any of the configuration values may also be passed as environment variables 
+to the container, however:
+
+- Unlike the way most configuration systems treat environment variables, 
+  they do not overwrite options provided in the configuration files unless 
+  the files are specifically written to honour the environment variables.
+
+- For array options the value provided in the environment variable will 
+  become the first item (index 0).
+
+
 Convenience Files
 -----------------
 
