@@ -168,23 +168,15 @@ latest stable available in the wordpress.org registry.
 
 The path to a file containing lines to append to [**THEMES**](#themes).
 
-### WP_CONFIG_EXTRA
-
-**Type**: string\
-**Required**: no\
-**Default**: /etc/wordpress/wp-config-extra.php
-
-This is the path to a file containing additional content for *wp-config.php* 
-to go near the end of the file.
-
-### WP_CONFIG_LINES
+### WP_CONFIGS
 
 **Type**: array\
-**Required**: no
+**Required**: no\
+**Default**: /etc/wordpress/*config.php
 
-This is an array of lines (without terminating carriage-returns) to add to 
-*wp-config.php* just before the contents of the file in 
-[**WP_CONFIG_EXTRA**](#wp_config_extra).
+This is an array of files to include in wp-config.php.  The default includes 
+a wildcard which is expanded.  Wildcards in the environment variable will 
+also be expanded.
 
 
 [php directives]:

@@ -30,6 +30,7 @@ RUN --mount=type=bind,source=scripts,target=/scripts \
     /scripts/install-wp.sh ${wp_version}
 
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
+COPY wp-config.php /usr/share/wordpress/wp-config.php
 COPY entrypoint.sh /bin/entrypoint
 
 # PAGER is used by the wp-cli tool, the default 'less' is not installed

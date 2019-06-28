@@ -33,62 +33,31 @@ declare -a PHP_DIRECTIVES=(
 	upload_max_filesize=20M
 	post_max_size=20M
 )
+declare -a WP_CONFIGS=(
+	${WP_CONFIGS-}
+	/etc/wordpress/*config.php
+)
 
 
 create_config()
 {
-	local IFS=$'\n'
-	local additional_config
-
-	if [[ ! -e wp-config.php ]]; then
-		:
-	elif [[ x${1-} = x-f ]]; then
-		rm wp-config.php
-	else
-		return 0
+	if [[ -e wp-config.php ]]; then
+		[[ -v force ]] && rm wp-config.php || return 0
 	fi
 
-	[[ ${WP_CONFIG_EXTRA:=/etc/wordpress/wp-config-extra.php} =~ ^/ ]] ||
-		WP_CONFIG_EXTRA=/etc/wordpress/${WP_CONFIG_EXTRA}
-	[[ -r ${WP_CONFIG_EXTRA} ]] &&
-		additional_config=${WP_CONFIG_EXTRA}
-
+	local IFS=$'\n'
+	sort -u <<-END_LIST |
+		/usr/share/wordpress/wp-config.php
+		${WP_CONFIGS[*]}
+	END_LIST
+	xargs cat |
 	wp config create \
 		--extra-php \
 		--skip-check \
 		--dbname="${DB_NAME? Please set DB_NAME in /etc/wordpress/}" \
 		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
 		${DB_HOST+--dbhost="${DB_HOST}"} \
-		${DB_PASS+--dbpass="${DB_PASS}"} \
-	<<-END_CONFIG
-		/*
-		 * Plugins, themes and language packs cannot be configured through the 
-		 * admin interface; modify the configuration in /etc/wordpress/ 
-		 * according to the documentation for PLUGINS[_LIST], THEMES[_LIST] and 
-		 * LANGUAGES[_LIST]
-		 */
-		define('DISALLOW_FILE_MODS', true);
-
-		/*
-		 * Disable running wp-cron.php on every page load.
-		 * Instead corn jobs will be run every 15 minutes.
-		 */
-		define('DISABLE_WP_CRON', true);
-
-		/*
-		 * Move the uploads volume/directory into the top of the Wordpress 
-		 * installation.
-		 */
-		define('UPLOADS', 'media');
-
-		/* BEGIN WP_CONFIG_LINES */
-		${WP_CONFIG_LINES[*]}
-		/* END WP_CONFIG_LINES */
-
-		/* BEGIN ${WP_CONFIG_EXTRA} */
-		${additional_config+$(<$additional_config)}
-		/* END ${WP_CONFIG_EXTRA} */
-	END_CONFIG
+		${DB_PASS+--dbpass="${DB_PASS}"}
 }
 
 setup_database() {
@@ -190,7 +159,7 @@ for directive in "${PHP_DIRECTIVES[@]}"; do
 done
 
 case "$1" in
-	database-setup) create_config -f && setup_database "${@:2}" ;;
+	database-setup) force=yes create_config && setup_database "${@:2}" ;;
 	install-setup) create_config && setup_components ;;
 	collect-static) create_config && collect_static ;;
 	run-cron) create_config && run_cron ;;
