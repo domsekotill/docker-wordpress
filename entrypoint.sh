@@ -10,6 +10,9 @@
 set -eu -o pipefail
 shopt -s nullglob globstar
 
+enable -f /usr/lib/bash/head head
+enable -f /usr/lib/bash/unlink unlink
+
 declare -r DEFAULT_THEME=twentynineteen
 
 declare DB_HOST DB_NAME DB_USER DB_PASS
@@ -42,7 +45,7 @@ declare -a WP_CONFIGS=(
 create_config()
 {
 	if [[ -e wp-config.php ]]; then
-		[[ -v force ]] && rm wp-config.php || return 0
+		[[ -v force ]] && unlink wp-config.php || return 0
 	fi
 
 	local IFS=$'\n'
@@ -126,6 +129,7 @@ next_cron()
 run_cron()
 {
 	enable -f /usr/lib/bash/sleep sleep
+	enable -f /usr/lib/bash/head head
 	while wp cron event run --due-now || true; do
 		sleep $(next_cron)
 	done
@@ -171,7 +175,7 @@ case "$1" in
 		exec "$@" "${extra_args[@]}"
 		;;
 	*)
-		[[ -v DB_NAME ]] && create_config || true
+		[[ -v DB_NAME ]] && create_config
 		exec "$@"
 		;;
 esac
