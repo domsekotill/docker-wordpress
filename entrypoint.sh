@@ -17,6 +17,7 @@ declare -a THEMES=( ${THEMES-} )
 declare -a PLUGINS=( ${PLUGINS-} )
 declare -a LANGUAGES=( ${LANGUAGES-} )
 declare -a STATIC_PATTERNS=(
+	${STATIC_PATTERNS-}
 	"*.crt"
 	"*.md"
 	"*.[pm]o"
