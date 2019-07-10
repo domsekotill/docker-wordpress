@@ -34,21 +34,12 @@ build-nginx:
 
 .push-tags: &push-tags
   stage: deploy
-  when: manual
-  script:
-  - version=`eval "docker run --rm
-    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
-    ${GET_VERSION}"`
-  - docker pull
-    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
-  - docker tag
-    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
-    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:${version}
-  - docker tag
-    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
-    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:latest
-  - docker push ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:${version}
-  - docker push ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}:latest
+  only: [master, develop]
+  script: |
+    BUILD_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
+    DEPLOY_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}
+    VERSION=`eval "docker run --rm ${BUILD_REPO} ${GET_VERSION}"`
+    . scripts/deploy.sh
 
 push-fastcgi:
   <<: *push-tags
