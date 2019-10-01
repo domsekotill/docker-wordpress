@@ -18,7 +18,6 @@ LABEL uk.org.kodo.maintainer "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 
 ARG wp_version=latest
 WORKDIR /app
-VOLUME /app/wp-content
 ENV WORDPRESS_ROOT=/app
 
 ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
