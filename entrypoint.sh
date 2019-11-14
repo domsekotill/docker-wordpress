@@ -165,7 +165,7 @@ done
 case "$1" in
 	database-setup) force=yes create_config && setup_database "${@:2}" ;;
 	install-setup) create_config && setup_components ;;
-	collect-static) create_config && collect_static ;;
+	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
 	php-fpm)
 		create_config
