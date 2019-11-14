@@ -7,10 +7,10 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 
 FROM php:7.3-fpm-alpine as deps
-RUN --mount=type=bind,source=scripts,target=/scripts /scripts/install-deps.sh
+RUN --mount=type=bind,source=scripts/install-deps.sh,target=/stage /stage
 
 FROM deps as compile
-RUN --mount=type=bind,source=scripts,target=/scripts /scripts/compile.sh
+RUN --mount=type=bind,source=scripts/compile.sh,target=/stage /stage
 
 FROM deps
 
@@ -25,8 +25,8 @@ ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
 COPY wp.sh /usr/local/bin/wp
 COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
-RUN --mount=type=bind,source=scripts,target=/scripts \
-    /scripts/install-wp.sh ${wp_version}
+RUN --mount=type=bind,source=scripts/install-wp.sh,target=/stage \
+    /stage ${wp_version}
 
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY wp-config.php /usr/share/wordpress/wp-config.php
