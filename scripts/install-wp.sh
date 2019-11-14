@@ -1,8 +1,14 @@
 #!/bin/bash
 set -eux
 
+COMPOSER_INSTALLER_URL=https://getcomposer.org/installer
 WP_CLI_URL=https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 WP_PASSWORD_HASH=https://raw.githubusercontent.com/Ayesh/WordPress-Password-Hash/1.5.1
+
+# Install Composer
+curl -sSL ${COMPOSER_INSTALLER_URL} |
+	php -- --install-dir=/usr/local/lib --filename=composer.phar
+ln -s ../lib/composer.phar /usr/local/bin/composer
 
 # Install WP-CLI
 curl -sSL ${WP_CLI_URL} \
@@ -21,3 +27,7 @@ mkdir -p wp-content/mu-plugins
 # Install non-optional plugins
 curl ${WP_PASSWORD_HASH}/wp-php-password-hash.php \
 	>wp-content/mu-plugins/password-hash.php
+
+# Install composer managed dependencies
+export COMPOSER_ALLOW_SUPERUSER=1
+composer install --prefer-dist

@@ -32,6 +32,7 @@ declare -a STATIC_PATTERNS=(
 	"LICEN[CS]E"
 	"README"
 	"readme.html"
+	"composer.*"
 )
 declare -a PHP_DIRECTIVES=(
 	${PHP_DIRECTIVES-}
@@ -94,6 +95,34 @@ setup_database() {
 	wp rewrite structure /posts/%postname%
 }
 
+setup_s3() {
+	# https://github.com/humanmade/S3-Uploads
+
+	declare -a configs=( "${!S3_ENDPOINT_@}" )
+	[[ ${#configs[*]} -gt 0 ]] || return 0
+
+	[[ -v S3_UPLOADS_ENDPOINT ]] &&
+	[[ -v S3_ENDPOINT_KEY ]] &&
+	[[ -v S3_ENDPOINT_SECRET ]] ||
+		return 0
+
+	wp plugin activate s3-uploads
+
+	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
+		wp config set S3_UPLOADS_USE_LOCAL true --raw
+
+	wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_ENDPOINT}"
+	wp config set S3_UPLOADS_KEY ${S3_ENDPOINT_KEY}
+	wp config set S3_UPLOADS_SECRET ${S3_ENDPOINT_SECRET} --quiet
+
+	# Plugin requires something here, it's not used
+	wp config set S3_UPLOADS_REGION ''
+
+	# Due to what appears to be a bug in the plugin, this MUST be a non-empty
+	# string; mostly it just affects the log output
+	wp config set S3_UPLOADS_BUCKET "CONFIGURED-BUCKET"
+}
+
 setup_components() {
 	setup_database
 
@@ -104,6 +133,7 @@ setup_components() {
 	wp language core update
 	wp language plugin update --all
 	wp language theme update --all
+	composer update --prefer-dist
 
 	# Ensure at least one theme is installed
 	[[ ${#THEMES[*]} -eq 0 ]] && THEMES+=( ${DEFAULT_THEME} )
@@ -118,6 +148,8 @@ setup_components() {
 	# Ensure a theme is active
 	[[ $(wp theme list --status=active --format=count) -eq 0 ]] &&
 		wp theme activate $(wp theme list --field=name | head -n1)
+
+	setup_s3
 
 	return 0
 }
@@ -140,8 +172,9 @@ collect_static()
 		--delete-delay \
 		--exclude-from=- \
 		--exclude='*.php' \
-		--exclude=static/ \
-		--exclude=media/ \
+		--exclude=/static/ \
+		--exclude=/media/ \
+		--exclude=/vendor/ \
 		--force \
 		--info="${flags[*]}" \
 		--times \

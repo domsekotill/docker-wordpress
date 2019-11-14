@@ -20,13 +20,14 @@ ARG wp_version=latest
 WORKDIR /app
 ENV WORDPRESS_ROOT=/app
 
-COPY scripts/wp.sh /usr/local/bin/wp
 COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
+COPY scripts/wp.sh /usr/local/bin/wp
+COPY data/composer.json /app/composer.json
 RUN --mount=type=bind,source=scripts/install-wp.sh,target=/stage \
     /stage ${wp_version}
 
-COPY plugins/probe.php wp-content/mu-plugins/
+COPY plugins/* wp-content/mu-plugins/
 COPY data/fpm.conf /usr/local/etc/php-fpm.d/image.conf
 COPY data/opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY data/wp-config.php /usr/share/wordpress/wp-config.php
