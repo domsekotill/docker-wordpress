@@ -45,7 +45,7 @@ declare -a WP_CONFIGS=(
 create_config()
 {
 	if [[ -e wp-config.php ]]; then
-		[[ -v force ]] && unlink wp-config.php || return 0
+		[[ -v FORCE_CONFIGURE ]] && unlink wp-config.php || return 0
 	fi
 
 	local IFS=$'\n'
@@ -61,10 +61,20 @@ create_config()
 		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
 		${DB_HOST+--dbhost="${DB_HOST}"} \
 		${DB_PASS+--dbpass="${DB_PASS}"}
+
+	wp config set WP_SITEURL "${SCHEME:=https}://${SITE_DOMAIN? Please set SITE_DOMAIN in /etc/wordpress/}"
+	wp config set WP_HOME "${SCHEME}://$SITE_DOMAIN"
 }
 
 setup_database() {
-	wp core install "$@"
+	wp core is-installed && return
+
+	wp core install \
+		--url=${SCHEME}://$SITE_DOMAIN \
+		--title="${SITE_TITLE:-New Wordpress Site}" \
+		--admin_user="${SITE_ADMIN:-admin}" \
+		--admin_email="${SITE_ADMIN_EMAIL:-admin@$SITE_DOMAIN}" \
+		${SITE_ADMIN_PASSWORD+--admin_password="${SITE_ADMIN_PASSWORD}"}
 
 	# Start with a pretty, restful permalink structure, instead of the plain, 
 	# ugly default. The user can change this as they please through the admin 
@@ -73,6 +83,8 @@ setup_database() {
 }
 
 setup_components() {
+	setup_database
+
 	# Update pre-installed components
 	wp core update --minor
 	wp plugin update --all
@@ -163,7 +175,7 @@ for directive in "${PHP_DIRECTIVES[@]}"; do
 done
 
 case "$1" in
-	database-setup) force=yes create_config && setup_database "${@:2}" ;;
+	database-setup) FORCE_CONFIGURE=yes create_config && setup_database ;;
 	install-setup) create_config && setup_components ;;
 	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
