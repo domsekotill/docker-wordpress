@@ -3,6 +3,10 @@ set -eux
 
 WP_PASSWORD_HASH=https://raw.githubusercontent.com/Ayesh/WordPress-Password-Hash/1.5.1
 
+# Install WP-CLI
+curl -sSL ${WP_CLI_URL} \
+    >/usr/local/lib/wp-cli.phar
+
 # Install Wordpress core
 wp core download --skip-content --locale=en_GB --version=$1
 
