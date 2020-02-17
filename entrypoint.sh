@@ -14,6 +14,7 @@ enable -f /usr/lib/bash/head head
 enable -f /usr/lib/bash/unlink unlink
 
 declare -r DEFAULT_THEME=twentynineteen
+declare -r WORKER_USER=www-data
 
 declare DB_HOST DB_NAME DB_USER DB_PASS
 declare -a THEMES=( ${THEMES-} )
@@ -110,6 +111,13 @@ setup_components() {
 	return 0
 }
 
+setup_media()
+{
+	# UID values change on every run, ensure the owner and group are set 
+	# correctly on ./media
+	chown -R $WORKER_USER:$WORKER_USER ./media
+}
+
 collect_static()
 {
 	local IFS=,
@@ -182,6 +190,7 @@ case "$1" in
 	php-fpm)
 		create_config
 		setup_components
+		setup_media
 		collect_static
 		run_background_cron
 		exec "$@" "${extra_args[@]}"
