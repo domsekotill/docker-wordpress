@@ -90,6 +90,15 @@ database.
 
 The hostname of the MySQL server providing the database.
 
+### HOME_URL
+
+**Type**: string\
+**Required**: no\
+**Default**: [**SITE_URL**](#SITE_URL) with path components removed
+
+The URL where visitors should first be directed to when accessing the web site. It defaults 
+to the root path of [**SITE_URL**](#SITE_URL).
+
 ### LANGUAGES
 
 **Type**: array\
@@ -137,6 +146,17 @@ An array of "key=value" strings declaring [PHP directives][].
 > **Note:** These values may alternatively be supplied as container command 
 > arguments preceded by the '-d' flag:
 > `-d upload_max_filesize=20M -d post_max_size=20M`
+
+### SITE_URL
+
+**Type**: string\
+**Required**: yes\
+**Example**: "https://my.example.org/blog"
+
+The base URL where the Wordpress app is hosted externally.  This MUST include at least 
+a protocol scheme (e.g. "https://") and a host name; it MAY contain a port, when external 
+access is via a non-standard port; if MAY contain a path component, when the Wordpress app 
+is not accessed at the root path.
 
 ### STATIC_PATTERNS
 

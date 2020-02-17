@@ -17,6 +17,7 @@ declare -r DEFAULT_THEME=twentynineteen
 declare -r WORKER_USER=www-data
 
 declare DB_HOST DB_NAME DB_USER DB_PASS
+declare HOME_URL SITE_URL
 declare -a THEMES=( ${THEMES-} )
 declare -a PLUGINS=( ${PLUGINS-} )
 declare -a LANGUAGES=( ${LANGUAGES-} )
@@ -63,15 +64,19 @@ create_config()
 		${DB_HOST+--dbhost="${DB_HOST}"} \
 		${DB_PASS+--dbpass="${DB_PASS}"}
 
-	wp config set WP_SITEURL "${SCHEME:=https}://${SITE_DOMAIN? Please set SITE_DOMAIN in /etc/wordpress/}"
-	wp config set WP_HOME "${SCHEME}://$SITE_DOMAIN"
+	local site_url=${SITE_URL? Please set SITE_URL}
+	local site_path=${site_url#*://*/}
+	local home_url=${HOME_URL:-${site_url%$site_path}}
+
+	wp config set WP_SITEURL "${site_url%/}"
+	wp config set WP_HOME "${home_url%/}"
 }
 
 setup_database() {
 	wp core is-installed && return
 
 	wp core install \
-		--url=${SCHEME}://$SITE_DOMAIN \
+		--url="${SITE_URL%/}" \
 		--title="${SITE_TITLE:-New Wordpress Site}" \
 		--admin_user="${SITE_ADMIN:-admin}" \
 		--admin_email="${SITE_ADMIN_EMAIL:-admin@$SITE_DOMAIN}" \
