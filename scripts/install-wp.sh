@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eux
 
+WP_CLI_URL=https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 WP_PASSWORD_HASH=https://raw.githubusercontent.com/Ayesh/WordPress-Password-Hash/1.5.1
 
 # Install WP-CLI
