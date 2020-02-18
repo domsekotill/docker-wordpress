@@ -94,10 +94,10 @@ The hostname of the MySQL server providing the database.
 
 **Type**: string\
 **Required**: no\
-**Default**: [**SITE_URL**](#SITE_URL) with path components removed
+**Default**: [**SITE_URL**](#site_url) with path components removed
 
 The URL where visitors should first be directed to when accessing the web site. It defaults 
-to the root path of [**SITE_URL**](#SITE_URL).
+to the root path of [**SITE_URL**](#site_url).
 
 ### LANGUAGES
 
@@ -162,9 +162,9 @@ A user name for the initial administrator account.
 
 **Type**: string\
 **Required**: no\
-**Default**: "admin@{DOMAIN}" where *DOMAIN* is extracted from [**SITE_URL**](#SITE_URL)
+**Default**: "admin@{DOMAIN}" where *DOMAIN* is extracted from [**SITE_URL**](#site_url)
 
-An email address for the new administrator account (see [**SITE_ADMIN**](#SITE_ADMIN)).
+An email address for the new administrator account (see [**SITE_ADMIN**](#site_admin)).
 
 > **Note:** This is only used for first-run setup; it can be changed from the admin 
 > interface.
@@ -174,7 +174,7 @@ An email address for the new administrator account (see [**SITE_ADMIN**](#SITE_A
 **Type**: string\
 **Required**: no
 
-A password for the new administrator account (see [**SITE_ADMIN**](#SITE_ADMIN)).
+A password for the new administrator account (see [**SITE_ADMIN**](#site_admin)).
 If left unset a new password will be prompted for when first accessing the admin interface.
 
 > **Note:** This is only used for first-run setup; it can be changed from the admin 
