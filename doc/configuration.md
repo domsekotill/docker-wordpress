@@ -175,7 +175,8 @@ An email address for the new administrator account (see [**SITE_ADMIN**](#site_a
 **Required**: no
 
 A password for the new administrator account (see [**SITE_ADMIN**](#site_admin)).
-If left unset a new password will be prompted for when first accessing the admin interface.
+If left unset a random password will be generated and reported in stderr logging; after 
+sign-in the user SHOULD then create a new password through the user management interface.
 
 > **Note:** This is only used for first-run setup; it can be changed from the admin 
 > interface.
