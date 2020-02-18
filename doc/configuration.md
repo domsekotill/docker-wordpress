@@ -147,6 +147,50 @@ An array of "key=value" strings declaring [PHP directives][].
 > arguments preceded by the '-d' flag:
 > `-d upload_max_filesize=20M -d post_max_size=20M`
 
+### SITE_ADMIN
+
+**Type**: string\
+**Required**: no\
+**Default**: "admin"
+
+A user name for the initial administrator account.
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
+### SITE_ADMIN_EMAIL
+
+**Type**: string\
+**Required**: no\
+**Default**: "admin@{DOMAIN}" where *DOMAIN* is extracted from [**SITE_URL**](#SITE_URL)
+
+An email address for the new administrator account (see [**SITE_ADMIN**](#SITE_ADMIN)).
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
+### SITE_ADMIN_PASSWORD
+
+**Type**: string\
+**Required**: no
+
+A password for the new administrator account (see [**SITE_ADMIN**](#SITE_ADMIN)).
+If left unset a new password will be prompted for when first accessing the admin interface.
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
+### SITE_TITLE
+
+**Type**: string\
+**Required**: no\
+**Default**: "New Wordpress Site"
+
+A title for the web site, displayed in various strategic locations.
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
 ### SITE_URL
 
 **Type**: string\
