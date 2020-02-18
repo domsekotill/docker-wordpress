@@ -8,14 +8,16 @@
 #
 
 set -eu -o pipefail
-shopt -s nullglob globstar
+shopt -s nullglob globstar extglob
 
 enable -f /usr/lib/bash/head head
 enable -f /usr/lib/bash/unlink unlink
 
 declare -r DEFAULT_THEME=twentynineteen
+declare -r WORKER_USER=www-data
 
 declare DB_HOST DB_NAME DB_USER DB_PASS
+declare HOME_URL SITE_URL
 declare -a THEMES=( ${THEMES-} )
 declare -a PLUGINS=( ${PLUGINS-} )
 declare -a LANGUAGES=( ${LANGUAGES-} )
@@ -44,10 +46,6 @@ declare -a WP_CONFIGS=(
 
 create_config()
 {
-	if [[ -e wp-config.php ]]; then
-		[[ -v force ]] && unlink wp-config.php || return 0
-	fi
-
 	local IFS=$'\n'
 	sort -u <<-END_LIST |
 		/usr/share/wordpress/wp-config.php
@@ -61,10 +59,27 @@ create_config()
 		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
 		${DB_HOST+--dbhost="${DB_HOST}"} \
 		${DB_PASS+--dbpass="${DB_PASS}"}
+
+	local site_url=${SITE_URL? Please set SITE_URL}
+	local site_path=${site_url##*://*([^/])}
+	local home_url=${HOME_URL:-${site_url%$site_path}}
+
+	wp config set WP_SITEURL "${site_url%/}"
+	wp config set WP_HOME "${home_url%/}"
 }
 
 setup_database() {
-	wp core install "$@"
+	wp core is-installed && return
+
+	local domain=${SITE_URL#*://}
+	domain=${domain%%[:/]*}
+
+	wp core install \
+		--url="${SITE_URL%/}" \
+		--title="${SITE_TITLE:-New Wordpress Site}" \
+		--admin_user="${SITE_ADMIN:-admin}" \
+		--admin_email="${SITE_ADMIN_EMAIL:-admin@$domain}" \
+		${SITE_ADMIN_PASSWORD+--admin_password="${SITE_ADMIN_PASSWORD}"}
 
 	# Start with a pretty, restful permalink structure, instead of the plain, 
 	# ugly default. The user can change this as they please through the admin 
@@ -73,6 +88,8 @@ setup_database() {
 }
 
 setup_components() {
+	setup_database
+
 	# Update pre-installed components
 	wp core update --minor
 	wp plugin update --all
@@ -96,6 +113,13 @@ setup_components() {
 		wp theme activate $(wp theme list --field=name | head -n1)
 
 	return 0
+}
+
+setup_media()
+{
+	# UID values change on every run, ensure the owner and group are set 
+	# correctly on ./media
+	chown -R $WORKER_USER:$WORKER_USER ./media
 }
 
 collect_static()
@@ -163,13 +187,12 @@ for directive in "${PHP_DIRECTIVES[@]}"; do
 done
 
 case "$1" in
-	database-setup) force=yes create_config && setup_database "${@:2}" ;;
-	install-setup) create_config && setup_components ;;
-	collect-static) create_config && collect_static ;;
+	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
 	php-fpm)
 		create_config
 		setup_components
+		setup_media
 		collect_static
 		run_background_cron
 		exec "$@" "${extra_args[@]}"

@@ -90,6 +90,15 @@ database.
 
 The hostname of the MySQL server providing the database.
 
+### HOME_URL
+
+**Type**: string\
+**Required**: no\
+**Default**: [**SITE_URL**](#site_url) with path components removed
+
+The URL where visitors should first be directed to when accessing the web site. It defaults 
+to the root path of [**SITE_URL**](#site_url).
+
 ### LANGUAGES
 
 **Type**: array\
@@ -137,6 +146,62 @@ An array of "key=value" strings declaring [PHP directives][].
 > **Note:** These values may alternatively be supplied as container command 
 > arguments preceded by the '-d' flag:
 > `-d upload_max_filesize=20M -d post_max_size=20M`
+
+### SITE_ADMIN
+
+**Type**: string\
+**Required**: no\
+**Default**: "admin"
+
+A user name for the initial administrator account.
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
+### SITE_ADMIN_EMAIL
+
+**Type**: string\
+**Required**: no\
+**Default**: "admin@{DOMAIN}" where *DOMAIN* is extracted from [**SITE_URL**](#site_url)
+
+An email address for the new administrator account (see [**SITE_ADMIN**](#site_admin)).
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
+### SITE_ADMIN_PASSWORD
+
+**Type**: string\
+**Required**: no
+
+A password for the new administrator account (see [**SITE_ADMIN**](#site_admin)).
+If left unset a random password will be generated and reported in stderr logging; after 
+sign-in the user SHOULD then create a new password through the user management interface.
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
+### SITE_TITLE
+
+**Type**: string\
+**Required**: no\
+**Default**: "New Wordpress Site"
+
+A title for the web site, displayed in various strategic locations.
+
+> **Note:** This is only used for first-run setup; it can be changed from the admin 
+> interface.
+
+### SITE_URL
+
+**Type**: string\
+**Required**: yes\
+**Example**: "https://my.example.org/blog"
+
+The base URL where the Wordpress app is hosted externally.  This MUST include at least 
+a protocol scheme (e.g. "https://") and a host name; it MAY contain a port, when external 
+access is via a non-standard port; if MAY contain a path component, when the Wordpress app 
+is not accessed at the root path.
 
 ### STATIC_PATTERNS
 
