@@ -184,8 +184,6 @@ for directive in "${PHP_DIRECTIVES[@]}"; do
 done
 
 case "$1" in
-	database-setup) create_config && setup_database ;;
-	install-setup) create_config && setup_components ;;
 	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
 	php-fpm)
