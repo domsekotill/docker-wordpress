@@ -1,10 +1,12 @@
 <?php
 /**
- * Plugin Name: Liveness probe
- * Description: Responds to requests to /.probe with an HTTP code indicating the
- *              status of the app
+ * Plugin Name: Liveness Probe
+ * Plugin URI: https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/tree/master/plugins
+ * Description: Responds to requests to /.probe with an HTTP code indicating the status of the app
  * Licence: MPL-2.0
+ * Licence URI: https://www.mozilla.org/en-US/MPL/2.0/
  * Author: Dominik Sekotill
+ * Author URI: https://code.kodo.org.uk/dom
  */
 
 
