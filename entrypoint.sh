@@ -71,11 +71,14 @@ create_config()
 setup_database() {
 	wp core is-installed && return
 
+	local domain=${SITE_URL#*://}
+	domain=${domain%%[:/]*}
+
 	wp core install \
 		--url="${SITE_URL%/}" \
 		--title="${SITE_TITLE:-New Wordpress Site}" \
 		--admin_user="${SITE_ADMIN:-admin}" \
-		--admin_email="${SITE_ADMIN_EMAIL:-admin@$SITE_DOMAIN}" \
+		--admin_email="${SITE_ADMIN_EMAIL:-admin@$domain}" \
 		${SITE_ADMIN_PASSWORD+--admin_password="${SITE_ADMIN_PASSWORD}"}
 
 	# Start with a pretty, restful permalink structure, instead of the plain, 
