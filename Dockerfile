@@ -26,6 +26,7 @@ COPY --from=compile /usr/local/lib/php /usr/local/lib/php
 RUN --mount=type=bind,source=scripts/install-wp.sh,target=/stage \
     /stage ${wp_version}
 
+COPY probe.php wp-content/mu-plugins/
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY wp-config.php /usr/share/wordpress/wp-config.php
 COPY entrypoint.sh /bin/entrypoint
