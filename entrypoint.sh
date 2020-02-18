@@ -8,7 +8,7 @@
 #
 
 set -eu -o pipefail
-shopt -s nullglob globstar
+shopt -s nullglob globstar extglob
 
 enable -f /usr/lib/bash/head head
 enable -f /usr/lib/bash/unlink unlink
@@ -65,7 +65,7 @@ create_config()
 		${DB_PASS+--dbpass="${DB_PASS}"}
 
 	local site_url=${SITE_URL? Please set SITE_URL}
-	local site_path=${site_url#*://*/}
+	local site_path=${site_url##*://*([^/])}
 	local home_url=${HOME_URL:-${site_url%$site_path}}
 
 	wp config set WP_SITEURL "${site_url%/}"
