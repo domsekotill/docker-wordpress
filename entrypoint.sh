@@ -46,6 +46,8 @@ declare -a WP_CONFIGS=(
 
 create_config()
 {
+	[[ -f wp-config.php ]] && unlink wp-config.php
+
 	local IFS=$'\n'
 	sort -u <<-END_LIST |
 		/usr/share/wordpress/wp-config.php
