@@ -27,6 +27,7 @@ RUN --mount=type=bind,source=scripts/install-wp.sh,target=/stage \
     /stage ${wp_version}
 
 COPY probe.php wp-content/mu-plugins/
+COPY fpm.conf /usr/local/etc/php-fpm.d/image.conf
 COPY opcache.ini /usr/local/etc/php/conf.d/opcache-recommended.ini
 COPY wp-config.php /usr/share/wordpress/wp-config.php
 COPY entrypoint.sh /bin/entrypoint
