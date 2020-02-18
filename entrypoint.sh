@@ -46,10 +46,6 @@ declare -a WP_CONFIGS=(
 
 create_config()
 {
-	if [[ -e wp-config.php ]]; then
-		[[ -v FORCE_CONFIGURE ]] && unlink wp-config.php || return 0
-	fi
-
 	local IFS=$'\n'
 	sort -u <<-END_LIST |
 		/usr/share/wordpress/wp-config.php
@@ -188,7 +184,7 @@ for directive in "${PHP_DIRECTIVES[@]}"; do
 done
 
 case "$1" in
-	database-setup) FORCE_CONFIGURE=yes create_config && setup_database ;;
+	database-setup) create_config && setup_database ;;
 	install-setup) create_config && setup_components ;;
 	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
