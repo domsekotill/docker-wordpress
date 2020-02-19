@@ -12,7 +12,7 @@ RUN --mount=type=bind,source=scripts/install-deps.sh,target=/stage /stage
 FROM deps as compile
 RUN --mount=type=bind,source=scripts/compile.sh,target=/stage /stage
 
-FROM deps
+FROM deps as fastcgi
 
 LABEL uk.org.kodo.maintainer "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 
