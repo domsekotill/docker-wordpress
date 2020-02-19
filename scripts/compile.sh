@@ -30,7 +30,7 @@ apk add "${BUILD_DEPS[@]}"
 
 # Build & install distributed extensions
 docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr
-docker-php-ext-install "${PHP_EXT[@]}"
+docker-php-ext-install -j$(nproc) "${PHP_EXT[@]}"
 
 # Download, build & install the Image Magick extension
 pecl install imagick

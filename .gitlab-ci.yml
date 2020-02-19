@@ -19,12 +19,9 @@ before_script:
   only: &build-only
     changes:
     - Dockerfile
-    - entrypoint.sh
-    - nginx.conf
-    - opcache.ini
+    - data/*
+    - plugins/*
     - scripts/*
-    - wp-config.php
-    - wp.sh
   script:
   - docker build .
     --pull=true

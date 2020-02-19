@@ -44,8 +44,15 @@ declare -a WP_CONFIGS=(
 )
 
 
+timestamp()
+{
+	echo "[$(date --utc +'%Y-%m-%dT%H:%M:%S%z')] $*"
+}
+
 create_config()
 {
+	[[ -f wp-config.php ]] && unlink wp-config.php
+
 	local IFS=$'\n'
 	sort -u <<-END_LIST |
 		/usr/share/wordpress/wp-config.php
@@ -156,6 +163,7 @@ run_cron()
 	enable -f /usr/lib/bash/head head
 	while wp cron event run --due-now || true; do
 		sleep $(next_cron)
+		timestamp "Executing cron tasks"
 	done
 }
 
@@ -190,10 +198,12 @@ case "$1" in
 	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
 	php-fpm)
+		timestamp "Starting Wordpress preparation"
 		create_config
 		setup_components
 		setup_media
 		collect_static
+		timestamp "Completed Wordpress preparation"
 		run_background_cron
 		exec "$@" "${extra_args[@]}"
 		;;
