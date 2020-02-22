@@ -169,7 +169,7 @@ run_cron()
 
 run_background_cron()
 { (
-	export -f next_cron run_cron
+	export -f next_cron run_cron timestamp
 	exec -a wp-cron /bin/bash <<<run_cron
 )& }
 
