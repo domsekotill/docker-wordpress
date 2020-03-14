@@ -122,15 +122,29 @@ setup_components() {
 	return 0
 }
 
+get_media_dir()
+{
+	[[ -v MEDIA ]] && return
+	MEDIA=$(
+		wp config get UPLOADS --type=constant ||
+		wp option get upload_path
+	)
+	[[ -n "${MEDIA}" ]] && return
+	local _wp_content=$(wp config get WP_CONTENT_DIR --type=constant)
+	MEDIA=${_wp_content:-wp-content}/uploads
+}
+
 setup_media()
 {
 	# UID values change on every run, ensure the owner and group are set 
-	# correctly on ./media
-	chown -R $WORKER_USER:$WORKER_USER ./media
+	# correctly on the media directory/volume.
+	get_media_dir
+	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}"
 }
 
 collect_static()
 {
+	get_media_dir
 	local IFS=,
 	declare -a flags=(flist stats remove del)
 	test -t 1 && flags+=(progress2)
@@ -141,7 +155,7 @@ collect_static()
 		--exclude-from=- \
 		--exclude='*.php' \
 		--exclude=static/ \
-		--exclude=media/ \
+		--exclude="${MEDIA}" \
 		--force \
 		--info="${flags[*]}" \
 		--times \
