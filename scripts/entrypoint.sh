@@ -121,6 +121,11 @@ setup_s3() {
 	# Due to what appears to be a bug in the plugin, this MUST be a non-empty
 	# string; mostly it just affects the log output
 	wp config set S3_UPLOADS_BUCKET "CONFIGURED-BUCKET"
+
+	# If there is anything in ./media, upload it
+	local contents=( media/* )
+	[[ ${#contents[*]} -gt 0 ]] &&
+		wp s3-uploads upload-directory media
 }
 
 setup_components() {
