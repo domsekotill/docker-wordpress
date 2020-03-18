@@ -101,7 +101,7 @@ setup_s3() {
 	declare -a configs=( "${!S3_ENDPOINT_@}" )
 	[[ ${#configs[*]} -gt 0 ]] || return 0
 
-	[[ -v S3_UPLOADS_ENDPOINT ]] &&
+	[[ -v S3_UPLOADS_ENDPOINT_URL ]] &&
 	[[ -v S3_ENDPOINT_KEY ]] &&
 	[[ -v S3_ENDPOINT_SECRET ]] ||
 		return 0
@@ -111,7 +111,13 @@ setup_s3() {
 	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
 		wp config set S3_UPLOADS_USE_LOCAL true --raw
 
-	wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_ENDPOINT}"
+	if [[ -v S3_UPLOADS_REWRITE_URL ]]; then
+		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_REWRITE_URL}"
+	else
+		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_ENDPOINT_URL}"
+	fi
+
+	wp config set S3_UPLOADS_ENDPOINT_URL "${S3_UPLOADS_ENDPOINT_URL}"
 	wp config set S3_UPLOADS_KEY ${S3_ENDPOINT_KEY}
 	wp config set S3_UPLOADS_SECRET ${S3_ENDPOINT_SECRET} --quiet
 

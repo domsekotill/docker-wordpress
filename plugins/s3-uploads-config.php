@@ -10,7 +10,7 @@
  */
 
 add_filter( 's3_uploads_s3_client_params', function ( $params ) {
-	$params['endpoint'] = S3_UPLOADS_BUCKET_URL;
+	$params['endpoint'] = S3_UPLOADS_ENDPOINT_URL;
 	$params['bucket_endpoint'] = true;
 	$params['disable_host_prefix_injection'] = true;
 	$params['use_path_style_endpoint'] = true;
