@@ -106,6 +106,9 @@ setup_s3() {
 	[[ -v S3_ENDPOINT_SECRET ]] ||
 		return 0
 
+	composer update --prefer-dist --no-dev --with-dependencies \
+		humanmade/s3-uploads
+
 	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
 		wp config set S3_UPLOADS_USE_LOCAL true --raw
 
@@ -142,7 +145,6 @@ setup_components() {
 	wp language core update
 	wp language plugin update --all
 	wp language theme update --all
-	composer update --prefer-dist
 
 	# Ensure at least one theme is installed
 	[[ ${#THEMES[*]} -eq 0 ]] && THEMES+=( ${DEFAULT_THEME} )
