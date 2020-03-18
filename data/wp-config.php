@@ -27,5 +27,5 @@ define('UPLOADS', 'media');
  * Run the Composer autoloader, if available
  * Assume the CWD is always /app and vendor is always in it.
  **/
-if ( is_file('vendor/autoload.php') )
-	require_once 'vendor/autoload.php';
+if ( is_file(ABSPATH . 'vendor/autoload.php') )
+	require_once ABSPATH . 'vendor/autoload.php';
