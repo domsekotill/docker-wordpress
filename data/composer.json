@@ -12,5 +12,10 @@
 	},
 	"config": {
 		"gitlab-domains": [ "code.kodo.org.uk" ]
+	},
+	"extra": {
+		"installer-paths": {
+			"wp-content/mu-plugins/{$name}/": [ "type:wordpress-plugin" ]
+		}
 	}
 }

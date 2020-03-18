@@ -106,8 +106,6 @@ setup_s3() {
 	[[ -v S3_ENDPOINT_SECRET ]] ||
 		return 0
 
-	wp plugin activate s3-uploads
-
 	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
 		wp config set S3_UPLOADS_USE_LOCAL true --raw
 
