@@ -11,6 +11,21 @@
 		<script>
 			var check = false;
 
+			function sleep(delay_ms) {
+				return new Promise((resolve) => setTimeout(resolve, delay_ms));
+			}
+
+			function head(url) {
+				return new Promise((resolve, reject) => {
+					jQuery.ajax({
+						url: url,
+						method: 'HEAD',
+						success: resolve,
+						error: reject,
+					});
+				})
+			}
+
 			$(document).ready(function() {
 				$('#checkModal')
 					.on('hide.bs.modal', function() {
@@ -19,16 +34,17 @@
 					.on('shown.bs.modal', async function() {
 						check = true;
 						while (check) {
-							await new Promise((resolve) => setTimeout(resolve, 1000));
-							$.ajax('#')
-							.done(function() {
-								window.location.reload();
-							})
-							.fail(function(xhr) {
-								if (xhr.status != 502) {
-									window.location.reload();
-								}
-							});
+							await sleep(1000);
+							try {
+								await head('#');
+							} catch (err) {
+								if (err.status === undefined)
+									throw err;
+								if (err.status == 502)
+									continue;
+							}
+							// non-502 code received
+							window.location.reload();
 						}
 					})
 					.modal('show');
