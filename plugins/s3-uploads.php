@@ -9,7 +9,7 @@
  * Author URI: http://hmn.md/
  **/
 
-if ( defined( 'S3_UPLOADS_ENTRYPOINT_URL' ) || defined( 'WP_CLI' ) ):
+if ( defined( 'S3_UPLOADS_ENDPOINT_URL' ) || defined( 'WP_CLI' ) ):
 
 add_filter( 's3_uploads_s3_client_params', function ( $params ) {
 	$params['endpoint'] = S3_UPLOADS_ENDPOINT_URL;
