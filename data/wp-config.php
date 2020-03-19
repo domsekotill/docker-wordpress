@@ -9,7 +9,8 @@
  * interface; modify the configuration in /etc/wordpress/ according to the 
  * documentation for PLUGINS[_LIST], THEMES[_LIST] and LANGUAGES[_LIST]
  **/
-define('DISALLOW_FILE_MODS', true);
+if ( !defined( 'WP_CLI' ) )
+	define('DISALLOW_FILE_MODS', true);
 
 /**
  * Disable running wp-cron.php on every page load. A sidecar process
