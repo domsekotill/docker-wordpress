@@ -9,7 +9,8 @@
  * interface; modify the configuration in /etc/wordpress/ according to the 
  * documentation for PLUGINS[_LIST], THEMES[_LIST] and LANGUAGES[_LIST]
  **/
-define('DISALLOW_FILE_MODS', true);
+if ( !defined( 'WP_CLI' ) )
+	define('DISALLOW_FILE_MODS', true);
 
 /**
  * Disable running wp-cron.php on every page load. A sidecar process
@@ -22,3 +23,10 @@ define('DISABLE_WP_CRON', true);
  * installation.
  **/
 define('UPLOADS', 'media');
+
+/**
+ * Run the Composer autoloader, if available
+ * Assume the CWD is always /app and vendor is always in it.
+ **/
+if ( is_file(ABSPATH . 'vendor/autoload.php') )
+	require_once ABSPATH . 'vendor/autoload.php';
