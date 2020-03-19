@@ -30,7 +30,7 @@ function unparse_url( array $parts ) {
 		(isset($parts['scheme'])   ?  "{$parts['scheme']}://" : '') .
 		(isset($parts['user'])     ?    $parts['user']        : '') .
 		(isset($parts['pass'])     ? ":{$parts['pass']}"      : '') .
-		(isset($parts['user'] || isset($parts['pass'])) ? '@' : '') .
+		(isset($parts['user']) || isset($parts['pass']) ? '@' : '') .
 		(isset($parts['host'])     ?    $parts['host']        : '') .
 		(isset($parts['port'])     ? ":{$parts['port']}"      : '') .
 		(isset($parts['path'])     ?    $parts['path']        : '') .
