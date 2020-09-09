@@ -28,6 +28,7 @@ before_script:
 .changes: &only-changes
   only: &change-files
     changes:
+    - .gitlab-ci.yml
     - Dockerfile
     - data/*
     - plugins/*
@@ -61,7 +62,9 @@ build:nginx:
 
 .push-tags: &push-tags
   stage: deploy
-  only: [ master, schedules ]
+  only:
+    << : *change-files
+    refs: [ master, develop, schedules ]
   script: |
     BUILD_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME##*:}/build:${CI_PIPELINE_ID}
     DEPLOY_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME##*:}
