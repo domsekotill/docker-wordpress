@@ -24,12 +24,22 @@ PHP_EXT=(
 	zip
 )
 
+php_version() {
+	php -r "version_compare(PHP_VERSION, '$2', '${1#-}') or exit(1);" ||
+		return 1
+}
+
 # Install packaged dependencies
 apk update
 apk add "${BUILD_DEPS[@]}"
 
 # Build & install distributed extensions
-docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr
+if php_version -gt 7.4; then
+	GD_ARGS=( --with-jpeg=/usr )
+else
+	GD_ARGS=( --with-png-dir=/usr --with-jpeg-dir=/usr )
+fi
+docker-php-ext-configure gd "${GD_ARGS[@]}"
 docker-php-ext-install -j$(nproc) "${PHP_EXT[@]}"
 
 # Download, build & install the Image Magick extension
