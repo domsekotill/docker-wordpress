@@ -9,6 +9,7 @@ BUILD_DEPS=(
 	imagemagick-dev
 	jpeg-dev
 	libpng-dev
+	libwebp-dev
 	libzip-dev
 )
 
@@ -35,9 +36,9 @@ apk add "${BUILD_DEPS[@]}"
 
 # Build & install distributed extensions
 if php_version -gt 7.4; then
-	GD_ARGS=( --with-jpeg=/usr )
+	GD_ARGS=( --with-jpeg=/usr --with-webp=/usr )
 else
-	GD_ARGS=( --with-png-dir=/usr --with-jpeg-dir=/usr )
+	GD_ARGS=( --with-png-dir=/usr --with-jpeg-dir=/usr --with-webp-dir=/usr )
 fi
 docker-php-ext-configure gd "${GD_ARGS[@]}"
 docker-php-ext-install -j$(nproc) "${PHP_EXT[@]}"

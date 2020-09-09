@@ -9,5 +9,6 @@ apk add \
 	libgmpxx \
 	libjpeg \
 	libpng \
+	libwebp \
 	libzip \
 	rsync \
