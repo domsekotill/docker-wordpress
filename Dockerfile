@@ -7,7 +7,8 @@ COPY data/nginx.conf /etc/nginx/conf.d/default.conf
 COPY data/5*.html /app/html/
 
 
-FROM php:7.3-fpm-alpine as deps
+ARG php_version=
+FROM php:${php_version:+$php_version-}fpm-alpine as deps
 RUN --mount=type=bind,source=scripts/install-deps.sh,target=/stage /stage
 
 FROM deps as compile
