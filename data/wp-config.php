@@ -17,6 +17,16 @@ define('DISABLE_WP_CRON', true);
 define('UPLOADS', 'media');
 
 /**
+ * Stop the site-health tool from complaining about unwritable filesystems.
+ * Background upgrades are performed by a user with write privileges via the
+ * wp-cli tool.
+ **/
+if ( !defined( 'WP_CLI' ) ):
+define('FTP_USER', 'nemo');
+define('FTP_PASS', '****');
+endif;
+
+/**
  * Run the Composer autoloader, if available
  * Assume the CWD is always /app and vendor is always in it.
  **/
