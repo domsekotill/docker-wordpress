@@ -23,6 +23,9 @@ before_script:
     --pull=true
     --tag=${BUILD_TAG}
     --target=${TARGET}
+    ${NGINX_VERSION:+--build-arg=nginx_version=$NGINX_VERSION}
+    ${PHP_VERSION:+--build-arg=php_version=$PHP_VERSION}
+    ${WORDPRESS_VERSION:+--build-arg=wp_version=$WORDPRESS_VERSION}
   - docker push ${BUILD_TAG}
 
 .changes: &only-changes
