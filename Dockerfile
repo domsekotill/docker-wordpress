@@ -4,6 +4,7 @@ ARG nginx_version=latest
 FROM nginx:${nginx_version} as nginx
 LABEL uk.org.kodo.maintainer = "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 COPY data/nginx.conf /etc/nginx/conf.d/default.conf
+COPY data/fastcgi.nginx.conf /etc/nginx/fastcgi_params
 COPY data/5*.html /app/html/
 
 
