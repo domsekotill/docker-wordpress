@@ -32,6 +32,7 @@ declare -a STATIC_PATTERNS=(
 	"LICEN[CS]E"
 	"README"
 	"readme.html"
+	"composer.*"
 )
 declare -a PHP_DIRECTIVES=(
 	${PHP_DIRECTIVES-}
@@ -94,6 +95,46 @@ setup_database() {
 	wp rewrite structure /posts/%postname%
 }
 
+setup_s3() {
+	# https://github.com/humanmade/S3-Uploads
+
+	declare -a configs=( "${!S3_ENDPOINT_@}" )
+	[[ ${#configs[*]} -gt 0 ]] || return 0
+
+	[[ -v S3_UPLOADS_ENDPOINT_URL ]] &&
+	[[ -v S3_ENDPOINT_KEY ]] &&
+	[[ -v S3_ENDPOINT_SECRET ]] ||
+		return 0
+
+	composer update --prefer-dist --no-dev --with-dependencies \
+		humanmade/s3-uploads
+
+	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
+		wp config set S3_UPLOADS_USE_LOCAL true --raw
+
+	if [[ -v S3_UPLOADS_REWRITE_URL ]]; then
+		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_REWRITE_URL}"
+	else
+		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_ENDPOINT_URL}"
+	fi
+
+	wp config set S3_UPLOADS_ENDPOINT_URL "${S3_UPLOADS_ENDPOINT_URL}"
+	wp config set S3_UPLOADS_KEY ${S3_ENDPOINT_KEY}
+	wp config set S3_UPLOADS_SECRET ${S3_ENDPOINT_SECRET} --quiet
+
+	# Plugin requires something here, it's not used
+	wp config set S3_UPLOADS_REGION ''
+
+	# Due to what appears to be a bug in the plugin, this MUST be a non-empty
+	# string; mostly it just affects the log output
+	wp config set S3_UPLOADS_BUCKET "CONFIGURED-BUCKET"
+
+	# If there is anything in ./media, upload it
+	local contents=( media/* )
+	[[ ${#contents[*]} -gt 0 ]] &&
+		wp s3-uploads upload-directory media
+}
+
 setup_components() {
 	setup_database
 
@@ -119,18 +160,34 @@ setup_components() {
 	[[ $(wp theme list --status=active --format=count) -eq 0 ]] &&
 		wp theme activate $(wp theme list --field=name | head -n1)
 
+	setup_s3
+
 	return 0
+}
+
+get_media_dir()
+{
+	[[ -v MEDIA ]] && return
+	MEDIA=$(
+		wp config get UPLOADS --type=constant ||
+		wp option get upload_path
+	)
+	[[ -n "${MEDIA}" ]] && return
+	local _wp_content=$(wp config get WP_CONTENT_DIR --type=constant)
+	MEDIA=${_wp_content:-wp-content}/uploads
 }
 
 setup_media()
 {
 	# UID values change on every run, ensure the owner and group are set 
-	# correctly on ./media
-	chown -R $WORKER_USER:$WORKER_USER ./media
+	# correctly on the media directory/volume.
+	get_media_dir
+	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}"
 }
 
 collect_static()
 {
+	get_media_dir
 	local IFS=,
 	declare -a flags=(flist stats remove del)
 	test -t 1 && flags+=(progress2)
@@ -140,8 +197,9 @@ collect_static()
 		--delete-delay \
 		--exclude-from=- \
 		--exclude='*.php' \
-		--exclude=static/ \
-		--exclude=media/ \
+		--exclude="${MEDIA}" \
+		--exclude=/static/ \
+		--exclude=/vendor/ \
 		--force \
 		--info="${flags[*]}" \
 		--times \
@@ -169,7 +227,7 @@ run_cron()
 
 run_background_cron()
 { (
-	export -f next_cron run_cron
+	export -f next_cron run_cron timestamp
 	exec -a wp-cron /bin/bash <<<run_cron
 )& }
 

@@ -16,45 +16,69 @@ before_script:
 
 .build: &build
   stage: build
-  only: &build-only
+  script:
+  - TARGET=${CI_JOB_NAME##*:}
+  - BUILD_TAG=${CI_REGISTRY_IMAGE}/${TARGET}/build:${CI_PIPELINE_ID}
+  - docker build .
+    --pull=true
+    --tag=${BUILD_TAG}
+    --target=${TARGET}
+    ${NGINX_VERSION:+--build-arg=nginx_version=$NGINX_VERSION}
+    ${PHP_VERSION:+--build-arg=php_version=$PHP_VERSION}
+    ${WORDPRESS_VERSION:+--build-arg=wp_version=$WORDPRESS_VERSION}
+  - docker push ${BUILD_TAG}
+
+.changes: &only-changes
+  only: &change-files
     changes:
+    - .gitlab-ci.yml
     - Dockerfile
     - data/*
     - plugins/*
     - scripts/*
-  script:
-  - docker build .
-    --pull=true
-    --tag=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#build-}/build:${CI_PIPELINE_ID}
-    ${TARGET+--target=$TARGET}
-  after_script:
-  - docker push
-    ${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#build-}/build:${CI_PIPELINE_ID}
 
-build-fastcgi:
-  <<: *build
-build-nginx:
-  <<: *build
-  variables:
-    TARGET: nginx
+.merge-requests: &only-merge-requests
+  only:
+    << : *change-files
+    refs:
+    - merge_requests
+
+build-master:fastcgi:
+  << : [ *build ]
+  only: [ master, schedules ]
+build-master:nginx:
+  << : [ *build ]
+  only: [ master, schedules ]
+
+build-mr:fastcgi:
+  << : [ *build, *only-merge-requests ]
+build-mr:nginx:
+  << : [ *build, *only-merge-requests ]
+
+build:fastcgi:
+  << : [ *build, *only-changes ]
+  except: [ merge_requests, master, schedules ]
+build:nginx:
+  << : [ *build, *only-changes ]
+  except: [ merge_requests, master, schedules ]
 
 
 .push-tags: &push-tags
   stage: deploy
   only:
-    <<: *build-only
-    refs: [master, develop]
+    << : *change-files
+    refs: [ master, develop, schedules ]
   script: |
-    BUILD_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}/build:${CI_PIPELINE_ID}
-    DEPLOY_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME#push-}
+    BUILD_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME##*:}/build:${CI_PIPELINE_ID}
+    DEPLOY_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME##*:}
     VERSION=`eval "docker run --rm ${BUILD_REPO} ${GET_VERSION}"`
     . scripts/deploy.sh
 
-push-fastcgi:
+push:fastcgi:
   <<: *push-tags
   variables:
     GET_VERSION: wp core version
-push-nginx:
+push:nginx:
   <<: *push-tags
   variables:
     GET_VERSION: nginx -V 2>&1 | sed -n '/nginx version:/s/.*nginx\///p'

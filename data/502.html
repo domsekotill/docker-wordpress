@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" class="wp-toolbar" lang="en-GB">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" defer="defer"></script>
+		<title>Site Unavailable</title>
+		<script>
+			var check = false;
+
+			function sleep(delay_ms) {
+				return new Promise((resolve) => setTimeout(resolve, delay_ms));
+			}
+
+			function head(url) {
+				return new Promise((resolve, reject) => {
+					jQuery.ajax({
+						url: url,
+						method: 'HEAD',
+						success: resolve,
+						error: reject,
+					});
+				})
+			}
+
+			$(document).ready(function() {
+				$('#checkModal')
+					.on('hide.bs.modal', function() {
+						check = false;
+					})
+					.on('shown.bs.modal', async function() {
+						check = true;
+						while (check) {
+							await sleep(1000);
+							try {
+								await head('#');
+							} catch (err) {
+								if (err.status === undefined)
+									throw err;
+								if (err.status == 502)
+									continue;
+							}
+							// non-502 code received
+							window.location.reload();
+						}
+					})
+					.modal('show');
+			});
+		</script>
+		<style>
+			.vertical-center {
+				min-height: 100%;
+				min-height:100vh;
+				display: flex;
+				align-items: center;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="modal fade" tabindex="-1" id="checkModal" role="dialog" aria-labelledby="#checkModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+
+					<!-- header -->
+					<div class="modal-header">
+						<h4 class="modal-title" id="checkModalLabel">Site Unavailable</h4>
+					</div>
+
+					<!-- body -->
+					<div class="modal-body">
+						<p>The page will reload automatically when the site becomes
+							available &#x2026;</p>
+					</div>
+
+					<!-- footer -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">
+							<span class="spinner-border spinner-border-sm"></span>
+							Cancel
+						</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="vertical-center">
+			<div class="container">
+
+				<div class="d-flex justify-content-center align-items-center">
+					<div class="p-2">
+						<h1>Site Unavailable</h1>
+						<p>This site is currently unavailable</p>
+						<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#checkModal">
+							Check availability
+						</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</body>
+</html>
