@@ -1,0 +1,41 @@
+# vim:ft=nginx
+
+types {
+	# images #
+	image/gif                    gif;
+	image/jpeg                   jpeg jpg;
+	image/png                    png;
+	image/tiff                   tif tiff;
+	image/vnd.wap.wbmp           wbmp;
+	image/x-icon                 ico;
+	image/x-jng                  jng;
+	image/x-ms-bmp               bmp;
+
+	# audio #
+	application/ogg              ogx;
+	audio/midi                   mid midi kar;
+	audio/mpeg                   mpga mpega mp2 mp3 m4a;
+	audio/ogg                    oga ogg spx;
+	audio/x-realaudio            ra;
+	audio/webm                   weba;
+
+	# video #
+	video/3gpp                   3gpp 3gp;
+	video/mp4                    mp4;
+	video/mpeg                   mpeg mpg mpe;
+	video/ogg                    ogv;
+	video/quicktime              mov;
+	video/webm                   webm;
+	video/x-flv                  flv;
+	video/x-mng                  mng;
+	video/x-ms-asf               asx asf;
+	video/x-ms-wmv               wmv;
+	video/x-msvideo              avi;
+
+	# archives #
+	application/x-tar            tar;
+	application/x-gtar           tar.gz tgz tar.Z tar.bz2 tbz2 tar.lzma tlz;
+	application/zip              zip zipx;
+	application/x-7z-compressed  7z s7z ace;
+	application/x-rar-compressed rar;
+}
