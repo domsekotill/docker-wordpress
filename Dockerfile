@@ -1,7 +1,9 @@
 # syntax = docker/dockerfile:1.0-experimental
 
-ARG nginx_version=latest
-FROM nginx:${nginx_version} as nginx
+ARG nginx_version
+ARG php_version
+
+FROM nginx:${nginx_version:-latest} as nginx
 LABEL uk.org.kodo.maintainer = "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 COPY data/nginx.conf /etc/nginx/conf.d/default.conf
 COPY data/fastcgi.nginx.conf /etc/nginx/fastcgi.conf
@@ -9,7 +11,6 @@ COPY data/cache-bust.nginx.conf /etc/nginx/cache-bust.conf
 COPY data/5*.html /app/html/
 
 
-ARG php_version=
 FROM php:${php_version:+$php_version-}fpm-alpine as deps
 RUN --mount=type=bind,source=scripts/install-deps.sh,target=/stage /stage
 
@@ -20,7 +21,6 @@ FROM deps as fastcgi
 
 LABEL uk.org.kodo.maintainer "Dom Sekotill <dom.sekotill@kodo.org.uk>"
 
-ARG wp_version=latest
 WORKDIR /app
 ENV WORDPRESS_ROOT=/app
 
@@ -28,6 +28,8 @@ COPY --from=compile /usr/local/etc/php /usr/local/etc/php
 COPY --from=compile /usr/local/lib/php /usr/local/lib/php
 COPY scripts/wp.sh /usr/local/bin/wp
 COPY data/composer.json /app/composer.json
+
+ARG wp_version=latest
 RUN --mount=type=bind,source=scripts/install-wp.sh,target=/stage \
     /stage ${wp_version}
 
