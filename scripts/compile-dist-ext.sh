@@ -1,19 +1,6 @@
 #!/bin/bash
 set -eux
 
-# Packaged build dependencies
-BUILD_DEPS=(
-	autoconf
-	build-base
-	git
-	gmp-dev
-	imagemagick-dev
-	jpeg-dev
-	libpng-dev
-	libwebp-dev
-	libzip-dev
-)
-
 # Distributed extensions
 PHP_EXT=(
 	bcmath
@@ -31,10 +18,6 @@ php_version() {
 		return 1
 }
 
-# Install packaged dependencies
-apk update
-apk add "${BUILD_DEPS[@]}"
-
 # Build & install distributed extensions
 if php_version -gt 7.4; then
 	GD_ARGS=( --with-jpeg=/usr --with-webp=/usr )
@@ -43,11 +26,3 @@ else
 fi
 docker-php-ext-configure gd "${GD_ARGS[@]}"
 docker-php-ext-install -j$(nproc) "${PHP_EXT[@]}"
-
-# Download, build & install the Image Magick extension
-cd $(mktemp -d)
-git clone --depth 1 https://github.com/imagick/imagick.git .
-phpize
-./configure
-make install
-echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini

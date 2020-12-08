@@ -15,7 +15,9 @@ FROM php:${php_version:+$php_version-}fpm-alpine as deps
 RUN --mount=type=bind,source=scripts/install-deps.sh,target=/stage /stage
 
 FROM deps as compile
-RUN --mount=type=bind,source=scripts/compile.sh,target=/stage /stage
+RUN --mount=type=bind,source=scripts/install-build-deps.sh,target=/stage /stage
+RUN --mount=type=bind,source=scripts/compile-dist-ext.sh,target=/stage /stage
+RUN --mount=type=bind,source=scripts/compile-imagick.sh,target=/stage /stage
 
 FROM deps as fastcgi
 
