@@ -5,6 +5,7 @@ set -eux
 BUILD_DEPS=(
 	autoconf
 	build-base
+	git
 	gmp-dev
 	imagemagick-dev
 	jpeg-dev
@@ -44,5 +45,9 @@ docker-php-ext-configure gd "${GD_ARGS[@]}"
 docker-php-ext-install -j$(nproc) "${PHP_EXT[@]}"
 
 # Download, build & install the Image Magick extension
-pecl install imagick
+cd $(mktemp -d)
+git clone --depth 1 https://github.com/imagick/imagick.git .
+phpize
+./configure
+make install
 echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini
