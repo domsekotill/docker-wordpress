@@ -54,10 +54,14 @@ Build
 > **Note:** Building manually requires Docker 18.09 or later with the 
 > [Buildkit][] feature enabled.
 
+> **Note:** *(Dec 2020)* Currently WP-CLI does not support PHP-8. Likely various plugins and
+> themes also do not work with PHP-8. Therefore until wider support is available, supply
+> a PHP-7 version with a build argument.
+
 To build the PHP-FPM image run:
 
 ```shell
-DOCKER_BUILDKIT=1 docker build -t wordpress:tag .
+DOCKER_BUILDKIT=1 docker build -t wordpress:tag --build-arg php_version=7.4.13 .
 ```
 
 To build the Nginx companion image, run:
