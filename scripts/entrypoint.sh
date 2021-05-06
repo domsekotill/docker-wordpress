@@ -13,7 +13,7 @@ shopt -s nullglob globstar extglob
 enable -f /usr/lib/bash/head head
 enable -f /usr/lib/bash/unlink unlink
 
-declare -r DEFAULT_THEME=twentynineteen
+declare -r DEFAULT_THEME=twentytwentyone
 declare -r WORKER_USER=www-data
 
 declare DB_HOST DB_NAME DB_USER DB_PASS
