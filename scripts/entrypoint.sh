@@ -68,6 +68,9 @@ create_config()
 		${DB_HOST+--dbhost="${DB_HOST}"} \
 		${DB_PASS+--dbpass="${DB_PASS}"}
 
+	# Clear potentialy sensitive information from environment lest it leaks
+	unset ${!DB_*}
+
 	local site_url=${SITE_URL? Please set SITE_URL}
 	local site_path=${site_url##*://*([^/])}
 	local home_url=${HOME_URL:-${site_url%$site_path}}
@@ -88,6 +91,9 @@ setup_database() {
 		--admin_user="${SITE_ADMIN:-admin}" \
 		--admin_email="${SITE_ADMIN_EMAIL:-admin@$domain}" \
 		${SITE_ADMIN_PASSWORD+--admin_password="${SITE_ADMIN_PASSWORD}"}
+
+	# Clear potentialy sensitive information from environment lest it leaks
+	unset ${!SITE_ADMIN*}
 
 	# Start with a pretty, restful permalink structure, instead of the plain, 
 	# ugly default. The user can change this as they please through the admin 
@@ -133,6 +139,9 @@ setup_s3() {
 	local contents=( media/* )
 	[[ ${#contents[*]} -gt 0 ]] &&
 		wp s3-uploads upload-directory media
+
+	# Clear potentialy sensitive information from environment lest it leaks
+	unset ${!S3_ENDPOINT_*}
 }
 
 setup_components() {
