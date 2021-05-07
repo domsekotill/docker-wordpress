@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2019 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+# Copyright 2019-2021 Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -95,8 +95,8 @@ setup_database() {
 	# Clear potentialy sensitive information from environment lest it leaks
 	unset ${!SITE_ADMIN*}
 
-	# Start with a pretty, restful permalink structure, instead of the plain, 
-	# ugly default. The user can change this as they please through the admin 
+	# Start with a pretty, restful permalink structure, instead of the plain,
+	# ugly default. The user can change this as they please through the admin
 	# dashboard.
 	wp rewrite structure /posts/%postname%
 }
@@ -188,7 +188,7 @@ get_media_dir()
 
 setup_media()
 {
-	# UID values change on every run, ensure the owner and group are set 
+	# UID values change on every run, ensure the owner and group are set
 	# correctly on the media directory/volume.
 	get_media_dir
 	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}"
