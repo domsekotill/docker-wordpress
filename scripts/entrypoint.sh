@@ -225,14 +225,23 @@ collect_static()
 
 deactivate_missing_plugins()
 {
+	# Output active plugin entrypoints as a JSON array
 	wp option get active_plugins --format=json |
+
+	# Convert to lines of raw strings
 	jq -r '.[]' |
+
+	# Filter out plugin entrypoints that don't exist in wp-content/plugins
 	while read plugin; do
 		test -e wp-content/plugins/$plugin &&
 			echo $plugin ||
 			echo >&2 "Deactivating removed plugin: $(dirname $plugin)"
 	done |
+
+	# Convert raw lines back into a JSON array
 	jq -nR '[inputs]' |
+
+	# Update the active plugin entrypoints
 	wp option update active_plugins --format=json
 }
 
