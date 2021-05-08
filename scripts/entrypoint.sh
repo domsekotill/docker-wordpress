@@ -225,7 +225,6 @@ collect_static()
 
 deactivate_missing_plugins()
 {
-	local plugin
 	wp option get active_plugins --format=json |
 	jq -r '.[]' |
 	while read plugin; do
@@ -233,7 +232,7 @@ deactivate_missing_plugins()
 			echo $plugin ||
 			echo >&2 "Deactivating removed plugin: $(dirname $plugin)"
 	done |
-	jq -R '[[.],[inputs]]|add' |
+	jq -nR '[inputs]' |
 	wp option update active_plugins --format=json
 }
 
