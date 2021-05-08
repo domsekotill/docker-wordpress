@@ -15,6 +15,8 @@ enable -f /usr/lib/bash/unlink unlink
 
 declare -r DEFAULT_THEME=twentytwentyone
 declare -r WORKER_USER=www-data
+declare -r CONFIG_DIR=/etc/wordpress
+declare -r WORK_DIR=${PWD}
 
 declare DB_HOST DB_NAME DB_USER DB_PASS
 declare HOME_URL SITE_URL
@@ -41,7 +43,7 @@ declare -a PHP_DIRECTIVES=(
 )
 declare -a WP_CONFIGS=(
 	${WP_CONFIGS-}
-	/etc/wordpress/*config.php
+	${CONFIG_DIR}/*config.php
 )
 
 
@@ -63,8 +65,8 @@ create_config()
 	wp config create \
 		--extra-php \
 		--skip-check \
-		--dbname="${DB_NAME? Please set DB_NAME in /etc/wordpress/}" \
-		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
+		--dbname="${DB_NAME? Please set DB_NAME in ${CONFIG_DIR}/}" \
+		--dbuser="${DB_USER? Please set DB_USER in ${CONFIG_DIR}/}" \
 		${DB_HOST+--dbhost="${DB_HOST}"} \
 		${DB_PASS+--dbpass="${DB_PASS}"}
 
@@ -241,17 +243,19 @@ run_background_cron()
 )& }
 
 
-for file in /etc/wordpress/**/*.conf; do
+mkdir -p ${CONFIG_DIR}
+cd ${CONFIG_DIR}
+for file in **/*.conf; do
 	source "${file}"
 done
 
-if [[ -e ${PLUGINS_LIST:=/etc/wordpress/plugins.txt} ]]; then
+if [[ -e ${PLUGINS_LIST:=${CONFIG_DIR}/plugins.txt} ]]; then
 	PLUGINS+=( $(<"${PLUGINS_LIST}") )
 fi
-if [[ -e ${THEMES_LIST:=/etc/wordpress/themes.txt} ]]; then
+if [[ -e ${THEMES_LIST:=${CONFIG_DIR}/themes.txt} ]]; then
 	THEMES+=( $(<"${THEMES_LIST}") )
 fi
-if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
+if [[ -e ${LANGUAGES_LIST:=${CONFIG_DIR}/languages.txt} ]]; then
 	LANGUAGES+=( $(<"${LANGUAGES_LIST}") )
 fi
 
@@ -261,6 +265,7 @@ for directive in "${PHP_DIRECTIVES[@]}"; do
 	extra_args+=( -d "${directive}" )
 done
 
+cd ${WORK_DIR}
 case "$1" in
 	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
