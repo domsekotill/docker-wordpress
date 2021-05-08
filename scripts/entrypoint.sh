@@ -171,6 +171,8 @@ setup_components() {
 	[[ $(wp theme list --status=active --format=count) -eq 0 ]] &&
 		wp theme activate $(wp theme list --field=name | head -n1)
 
+	deactivate_missing_plugins
+
 	setup_s3
 
 	return 0
@@ -219,6 +221,20 @@ collect_static()
 		--relative \
 		--times \
 		. static/
+}
+
+deactivate_missing_plugins()
+{
+	local plugin
+	wp option get active_plugins --format=json |
+	jq -r '.[]' |
+	while read plugin; do
+		test -e wp-content/plugins/$plugin &&
+			echo $plugin ||
+			echo >&2 "Deactivating removed plugin: $(dirname $plugin)"
+	done |
+	jq -R '[[.],[inputs]]|add' |
+	wp option update active_plugins --format=json
 }
 
 next_cron()
