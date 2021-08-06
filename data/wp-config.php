@@ -11,7 +11,7 @@
 define('DISABLE_WP_CRON', true);
 
 /**
- * Move the uploads volume/directory into the top of the Wordpress 
+ * Move the uploads volume/directory into the top of the Wordpress
  * installation.
  **/
 define('UPLOADS', 'media');

@@ -1,0 +1,47 @@
+repos:
+
+- repo: meta
+  hooks:
+  - id: check-hooks-apply
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v3.4.0
+  hooks:
+  - id: check-added-large-files
+    stages: [commit]
+  - id: check-case-conflict
+    stages: [commit]
+  - id: check-merge-conflict
+    stages: [commit]
+  - id: check-yaml
+    args: [--allow-multiple-documents]
+    stages: [commit]
+  - id: destroyed-symlinks
+    stages: [commit]
+  - id: end-of-file-fixer
+    stages: [commit]
+  - id: fix-byte-order-marker
+    stages: [commit]
+  - id: mixed-line-ending
+    args: [--fix=lf]
+    stages: [commit]
+  - id: trailing-whitespace
+    exclude_types: [markdown, plain-text]
+    stages: [commit]
+
+- repo: https://github.com/jorisroovers/gitlint
+  rev: v0.15.0
+  hooks:
+  - id: gitlint
+
+- repo: https://github.com/jumanjihouse/pre-commit-hooks
+  rev: 2.1.5
+  hooks:
+  - id: protect-first-parent
+
+- repo: https://code.kodo.org.uk/dom/pre-commit-hooks
+  rev: v0.5.1
+  hooks:
+  - id: check-for-squash
+  - id: copyright-notice
+    exclude: ^data/

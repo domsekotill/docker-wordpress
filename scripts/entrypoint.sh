@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2019 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+# Copyright 2019-2021 Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -13,8 +13,10 @@ shopt -s nullglob globstar extglob
 enable -f /usr/lib/bash/head head
 enable -f /usr/lib/bash/unlink unlink
 
-declare -r DEFAULT_THEME=twentynineteen
+declare -r DEFAULT_THEME=twentytwentyone
 declare -r WORKER_USER=www-data
+declare -r CONFIG_DIR=/etc/wordpress
+declare -r WORK_DIR=${PWD}
 
 declare DB_HOST DB_NAME DB_USER DB_PASS
 declare HOME_URL SITE_URL
@@ -41,7 +43,7 @@ declare -a PHP_DIRECTIVES=(
 )
 declare -a WP_CONFIGS=(
 	${WP_CONFIGS-}
-	/etc/wordpress/*config.php
+	${CONFIG_DIR}/*config.php
 )
 
 
@@ -63,10 +65,13 @@ create_config()
 	wp config create \
 		--extra-php \
 		--skip-check \
-		--dbname="${DB_NAME? Please set DB_NAME in /etc/wordpress/}" \
-		--dbuser="${DB_USER? Please set DB_USER in /etc/wordpress/}" \
+		--dbname="${DB_NAME? Please set DB_NAME in ${CONFIG_DIR}/}" \
+		--dbuser="${DB_USER? Please set DB_USER in ${CONFIG_DIR}/}" \
 		${DB_HOST+--dbhost="${DB_HOST}"} \
 		${DB_PASS+--dbpass="${DB_PASS}"}
+
+	# Clear potentialy sensitive information from environment lest it leaks
+	unset ${!DB_*}
 
 	local site_url=${SITE_URL? Please set SITE_URL}
 	local site_path=${site_url##*://*([^/])}
@@ -89,8 +94,11 @@ setup_database() {
 		--admin_email="${SITE_ADMIN_EMAIL:-admin@$domain}" \
 		${SITE_ADMIN_PASSWORD+--admin_password="${SITE_ADMIN_PASSWORD}"}
 
-	# Start with a pretty, restful permalink structure, instead of the plain, 
-	# ugly default. The user can change this as they please through the admin 
+	# Clear potentialy sensitive information from environment lest it leaks
+	unset ${!SITE_ADMIN*}
+
+	# Start with a pretty, restful permalink structure, instead of the plain,
+	# ugly default. The user can change this as they please through the admin
 	# dashboard.
 	wp rewrite structure /posts/%postname%
 }
@@ -133,6 +141,9 @@ setup_s3() {
 	local contents=( media/* )
 	[[ ${#contents[*]} -gt 0 ]] &&
 		wp s3-uploads upload-directory media
+
+	# Clear potentialy sensitive information from environment lest it leaks
+	unset ${!S3_ENDPOINT_*}
 }
 
 setup_components() {
@@ -160,6 +171,8 @@ setup_components() {
 	[[ $(wp theme list --status=active --format=count) -eq 0 ]] &&
 		wp theme activate $(wp theme list --field=name | head -n1)
 
+	deactivate_missing_plugins
+
 	setup_s3
 
 	return 0
@@ -179,7 +192,7 @@ get_media_dir()
 
 setup_media()
 {
-	# UID values change on every run, ensure the owner and group are set 
+	# UID values change on every run, ensure the owner and group are set
 	# correctly on the media directory/volume.
 	get_media_dir
 	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}"
@@ -210,6 +223,28 @@ collect_static()
 		. static/
 }
 
+deactivate_missing_plugins()
+{
+	# Output active plugin entrypoints as a JSON array
+	wp option get active_plugins --format=json |
+
+	# Convert to lines of raw strings
+	jq -r '.[]' |
+
+	# Filter out plugin entrypoints that don't exist in wp-content/plugins
+	while read plugin; do
+		test -e wp-content/plugins/$plugin &&
+			echo $plugin ||
+			echo >&2 "Deactivating removed plugin: $(dirname $plugin)"
+	done |
+
+	# Convert raw lines back into a JSON array
+	jq -nR '[inputs]' |
+
+	# Update the active plugin entrypoints
+	wp option update active_plugins --format=json
+}
+
 next_cron()
 {
 	echo $(($(wp cron event list --field=time|sort|head -n1) - $(date +%s)))
@@ -232,17 +267,19 @@ run_background_cron()
 )& }
 
 
-for file in /etc/wordpress/**/*.conf; do
+mkdir -p ${CONFIG_DIR}
+cd ${CONFIG_DIR}
+for file in **/*.conf; do
 	source "${file}"
 done
 
-if [[ -e ${PLUGINS_LIST:=/etc/wordpress/plugins.txt} ]]; then
+if [[ -e ${PLUGINS_LIST:=${CONFIG_DIR}/plugins.txt} ]]; then
 	PLUGINS+=( $(<"${PLUGINS_LIST}") )
 fi
-if [[ -e ${THEMES_LIST:=/etc/wordpress/themes.txt} ]]; then
+if [[ -e ${THEMES_LIST:=${CONFIG_DIR}/themes.txt} ]]; then
 	THEMES+=( $(<"${THEMES_LIST}") )
 fi
-if [[ -e ${LANGUAGES_LIST:=/etc/wordpress/languages.txt} ]]; then
+if [[ -e ${LANGUAGES_LIST:=${CONFIG_DIR}/languages.txt} ]]; then
 	LANGUAGES+=( $(<"${LANGUAGES_LIST}") )
 fi
 
@@ -252,6 +289,7 @@ for directive in "${PHP_DIRECTIVES[@]}"; do
 	extra_args+=( -d "${directive}" )
 done
 
+cd ${WORK_DIR}
 case "$1" in
 	collect-static) create_config && setup_components && collect_static ;;
 	run-cron) create_config && run_cron ;;
