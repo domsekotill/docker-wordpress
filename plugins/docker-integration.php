@@ -89,8 +89,6 @@ add_filter(
 	}
 );
 
-require WPMU_PLUGIN_DIR . '/s3-uploads/s3-uploads.php';
-
 endif;
 
 
