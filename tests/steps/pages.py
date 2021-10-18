@@ -54,7 +54,8 @@ def assert_not_exist(context: Context, path: str) -> None:
 		"--post_type=post,page", "--post_status=publish",
 	]
 	urls = {*context.site.backend.cli(*cmd, deserialiser=JSONArray.from_string)}
-	assert context.site.url / path not in urls
+	assert context.site.url / path not in urls, \
+		f"{context.site.url / path} exists"
 
 
 @given("a {post_type:PostType} exists containing")

@@ -77,4 +77,5 @@ def assert_response(context: Context, response: ResponseCode) -> None:
 
 	"response" can be a numeric or phrasal response in ResponseCode
 	"""
-	assert context.response.status_code == response
+	assert context.response.status_code == response, \
+		f"Expected response {response}: got {context.response.status_code}"
