@@ -10,6 +10,8 @@ Step implementations dealing with HTTP requests
 
 from __future__ import annotations
 
+from typing import Any
+
 from behave import then
 from behave import when
 from behave.runner import Context
@@ -25,10 +27,30 @@ class ResponseCode(int, PatternEnum):
 	ok = 200
 	not_found = 404
 
-	members = {
-		"200": 200, "OK": 200,
-		"404": 404, "Not Found": 404,
+	# Aliases for the above codes, for mapping natural language in feature files to enums
+	ALIASES = {
+		"OK": 200,
+		"Not Found": 404,
 	}
+
+	@staticmethod
+	def member_filter(attr: dict[str, Any], member_names: list[str]) -> None:
+		"""
+		Add natural language aliases and stringified code values to members
+
+		Most will be accessible only though a class call, which is acceptable as that is how
+		step implementations look up the values.
+		"""
+		additional = {
+			str(value): value
+			for name in member_names
+			for value in [attr[name]]
+			if isinstance(value, int)
+		}
+		additional.update(attr["ALIASES"])
+		member_names.remove("ALIASES")
+		member_names.extend(additional)
+		attr.update(additional)
 
 
 @when("{url:URL} is requested")

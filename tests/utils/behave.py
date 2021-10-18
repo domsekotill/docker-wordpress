@@ -67,17 +67,16 @@ def register_pattern(pattern: str, converter: PatternConverter|None = None) -> P
 
 class EnumMeta(enum.EnumMeta):
 
-	MEMBERS = 'members'
+	MEMBER_FILTER = 'member_filter'
 
 	T = TypeVar("T", bound="EnumMeta")
 
 	def __new__(mtc: type[T], name: str, bases: tuple[type, ...], attr: dict[str, Any], **kwds: Any) -> T:
 		member_names: list[str] = attr._member_names  # type: ignore
-		if mtc.MEMBERS in member_names:
-			members = attr.pop(mtc.MEMBERS)
-			member_names.remove(mtc.MEMBERS)
-			member_names.extend(members)
-			attr.update(members)
+		member_filter = attr.pop(mtc.MEMBER_FILTER, None)
+		if member_filter:
+			assert isinstance(member_filter, staticmethod)
+			member_filter.__func__(attr, member_names)
 		cls = enum.EnumMeta.__new__(mtc, name, bases, attr, **kwds)
 		decorator = parse.with_pattern('|'.join(member for member in cls.__members__))
 		behave.register_type(**{name: decorator(cls)})
