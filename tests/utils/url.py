@@ -15,7 +15,7 @@ from urllib.parse import urljoin
 from .behave import register_pattern
 
 
-@register_pattern(r"(?:https?://|/)\S+")
+@register_pattern(r"(?:https?://\S+|/\S*)")
 class URL(str):
 	"""
 	A subclass for URL strings which also acts as a pattern match type
