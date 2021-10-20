@@ -22,6 +22,6 @@ Feature: Return 404 for unknown path
 
 		Examples:
 			| suffix | result    |
-			| /      | OK        |
+			| /      | 301       |
 			| /0     | OK        |
 			| /foo   | Not Found |

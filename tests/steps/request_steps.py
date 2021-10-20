@@ -25,6 +25,11 @@ class ResponseCode(int, PatternEnum):
 	"""
 
 	ok = 200
+	moved_permanently = 301
+	found = 302
+	not_modified = 304
+	temporary_redirect = 307
+	permanent_redirect = 308
 	not_found = 404
 
 	# Aliases for the above codes, for mapping natural language in feature files to enums
@@ -58,7 +63,7 @@ def get_request(context: Context, url: URL) -> None:
 	"""
 	Assign the response from making a GET request to "url" to the context
 	"""
-	context.response = context.session.get(context.site.url / url)
+	context.response = context.session.get(context.site.url / url, allow_redirects=False)
 
 
 @when("the homepage is requested")
