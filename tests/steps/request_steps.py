@@ -10,6 +10,7 @@ Step implementations dealing with HTTP requests
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from behave import then
@@ -84,3 +85,14 @@ def assert_response(context: Context, response: ResponseCode) -> None:
 	"""
 	assert context.response.status_code == response, \
 		f"Expected response {response}: got {context.response.status_code}"
+
+
+@then("the response body is JSON")
+def assert_is_json(context: Context) -> None:
+	"""
+	Assert the response body of a previous step contains a JSON document
+	"""
+	try:
+		context.response.json()
+	except json.JSONDecodeError:
+		raise AssertionError("Response is not a JSON document")

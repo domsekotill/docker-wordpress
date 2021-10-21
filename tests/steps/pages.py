@@ -58,12 +58,13 @@ def assert_not_exist(context: Context, path: str) -> None:
 		f"{context.site.url / path} exists"
 
 
+@given("a blank {post_type:PostType} exists")
 @given("a {post_type:PostType} exists containing")
 def create_post(context: Context, post_type: PostType, text: str|None = None) -> None:
 	"""
 	Create a WP post of the given type and store it in the context with the type as the name
 	"""
-	post = use_fixture(wp_post, context, post_type, text or context.text)
+	post = use_fixture(wp_post, context, post_type, text or getattr(context, "text", ""))
 	setattr(context, post_type.value, post)
 
 
@@ -72,21 +73,15 @@ def set_homepage(context: Context) -> None:
 	"""
 	Set the WP page from the context as the configured front page
 	"""
-	wp = context.site.backend
-	pageid = context.page.path("$.ID", int)
-	wp.cli("option", "update", "page_on_front", str(pageid))
-	wp.cli("option", "update", "show_on_front", "page")
-
-	page = use_fixture(wp_post, context, PostType.page)
-	wp.cli("option", "update", "page_for_posts", page.path("$.ID", int, str))
+	use_fixture(set_specials, context, homepage=context.page)
 
 
-@given("the homepage is the default")
-def reset_homepage(context: Context) -> None:
+@given("is configured as the post index")
+def set_post_index(context: Context) -> None:
 	"""
-	Ensure the front page is reverted to it's default
+	Set the WP page from the context as the post index page
 	"""
-	context.site.backend.cli("option", "update", "show_on_front", "post")
+	use_fixture(set_specials, context, posts=context.page)
 
 
 @when("the {post_type:PostType} is requested")
@@ -160,3 +155,39 @@ def wp_post(
 	)
 	yield post
 	wp.cli("post", "delete", postid)
+
+
+@fixture
+def set_specials(
+	context: Context, /,
+	homepage: JSONObject|None = None,
+	posts: JSONObject|None = None,
+	*a: Any,
+	**k: Any,
+) -> Iterator[None]:
+	"""
+	Set the homepage and post index to new pages, creating default pages if needed
+
+	Pages are reset at the end of a scenario
+	"""
+	wp = context.site.backend
+
+	options = {
+		opt["option_name"]: opt["option_value"]
+		for opt in wp.cli("option", "list", "--format=json", deserialiser=JSONArray.from_string)
+	}
+
+	homepage = homepage or use_fixture(wp_post, context, PostType.page)
+	wp.cli("option", "update", "page_on_front", homepage.path("$.ID", int, str))
+	wp.cli("option", "update", "show_on_front", "page")
+
+	posts = posts or use_fixture(wp_post, context, PostType.page)
+	wp.cli("option", "update", "page_for_posts", posts.path("$.ID", int, str))
+
+	yield
+
+	for name in ["page_on_front", "show_on_front", "page_for_posts"]:
+		try:
+			wp.cli("option", "update", name, options[name])
+		except KeyError:
+			wp.cli("option", "delete", name)
