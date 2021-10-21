@@ -155,13 +155,16 @@ class Image(Item):
 		self.iid = iid
 
 	@classmethod
-	def build(cls: type[T], context: Path, target: str = "", **build_args: str) -> T:
+	def build(cls: type[T], context: Path, target: str = "", **build_args: str|None) -> T:
 		"""
 		Build an image from the given context
+
+		Build arguments are ignored if they are None to make it easier to supply (or not)
+		arguments from external lookups without complex argument composing.
 		"""
 		cmd: Arguments = [
 			'build', context, f"--target={target}",
-			*(f"--build-arg={arg}={val}" for arg, val in build_args.items()),
+			*(f"--build-arg={arg}={val}" for arg, val in build_args.items() if val is not None),
 		]
 		docker(*cmd, DOCKER_BUILDKIT='1')
 		iid = docker_output(*cmd, '-q', DOCKER_BUILDKIT='1')

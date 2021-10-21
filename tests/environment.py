@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import sys
 from contextlib import contextmanager
+from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
@@ -140,7 +141,11 @@ def test_cluster(site_url: str) -> Iterator[Site]:
 			),
 		)
 		frontend = Container(
-			Image.build(BUILD_CONTEXT, target='nginx'),
+			Image.build(
+				BUILD_CONTEXT,
+				target='nginx',
+				nginx_version=environ.get("NGINX_VERSION"),
+			),
 			network=network,
 			volumes=[
 				("static", Path("/app/static")),
@@ -148,7 +153,11 @@ def test_cluster(site_url: str) -> Iterator[Site]:
 			],
 		)
 		backend = Wordpress(
-			Image.build(BUILD_CONTEXT),
+			Image.build(
+				BUILD_CONTEXT,
+				php_version=environ.get("PHP_VERSION"),
+				wp_version=environ.get("WP_VERSION"),
+			),
 			network=network,
 			volumes=frontend.volumes,
 			env=dict(
@@ -173,7 +182,6 @@ def test_cluster(site_url: str) -> Iterator[Site]:
 
 
 if __name__ == "__main__":
-	from os import environ
 	from subprocess import run
 
 	with test_cluster(SITE_URL) as site:
