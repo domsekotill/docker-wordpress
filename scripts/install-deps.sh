@@ -14,6 +14,7 @@ apk add \
 	imagemagick-libs \
 	jq \
 	libgmpxx \
+	libgomp \
 	libjpeg \
 	libpng \
 	libwebp \
