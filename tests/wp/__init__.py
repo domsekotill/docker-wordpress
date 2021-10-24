@@ -22,7 +22,7 @@ from typing import SupportsBytes
 from typing import TypeVar
 from typing import overload
 
-from .docker import Container
+from .docker import Container as Container
 from .proc import PathArg
 from .proc import coerce_args
 from .proc import exec_io
