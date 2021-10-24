@@ -45,10 +45,18 @@ def register_pattern(pattern: str) -> Decorator[PatternConverter]: ...
 
 
 @overload
-def register_pattern(pattern: str, converter: PatternConverter) -> PatternConverter: ...
+def register_pattern(
+	pattern: str,
+	converter: PatternConverter,
+	name: str = ...,
+) -> PatternConverter: ...
 
 
-def register_pattern(pattern: str, converter: PatternConverter|None = None) -> PatternConverter|Decorator[PatternConverter]:
+def register_pattern(
+	pattern: str,
+	converter: PatternConverter|None = None,
+	name: str = "",
+) -> PatternConverter|Decorator[PatternConverter]:
 	"""
 	Register a pattern and converter for a step parser type
 
@@ -57,7 +65,9 @@ def register_pattern(pattern: str, converter: PatternConverter|None = None) -> P
 	pattern_decorator = parse.with_pattern(pattern)
 
 	def decorator(converter: PatternConverter) -> PatternConverter:
-		behave.register_type(**{converter.__name__: pattern_decorator(converter)})
+		nonlocal name
+		name = name or converter.__name__
+		behave.register_type(**{name: pattern_decorator(converter)})
 		return converter
 
 	if converter:
