@@ -1,9 +1,21 @@
-.build: &build
+.changes: &change-files
+  changes:
+  - .gitlab-ci.yml
+  - Dockerfile
+  - data/*
+  - plugins/*
+  - scripts/*
+
+.build:
   stage: build
   image: docker.kodo.org.uk/ci-images/buildkit/buildctl:latest
   tags: [buildkit]
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  - if: $CI_PIPELINE_SOURCE == "schedule"
+  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  - << : *change-files
   script:
-  - TARGET=${CI_JOB_NAME##*:}
   - BUILD_TAG=${CI_REGISTRY_IMAGE}/${TARGET}/build:${CI_PIPELINE_ID}
   - buildctl build
     --frontend=dockerfile.v0
@@ -15,57 +27,50 @@
     ${WORDPRESS_VERSION:+--opt build-arg:wp_version=$WORDPRESS_VERSION}
     --output type=image,name=${BUILD_TAG},push=true
 
-.changes: &only-changes
-  only: &change-files
-    changes:
-    - .gitlab-ci.yml
-    - Dockerfile
-    - data/*
-    - plugins/*
-    - scripts/*
 
-.merge-requests: &only-merge-requests
-  only:
-    << : *change-files
-    refs:
-    - merge_requests
-
-build-master:fastcgi:
-  << : [ *build ]
-  only: [ master, schedules ]
-build-master:nginx:
-  << : [ *build ]
-  only: [ master, schedules ]
-
-build-mr:fastcgi:
-  << : [ *build, *only-merge-requests ]
-build-mr:nginx:
-  << : [ *build, *only-merge-requests ]
-
-build:fastcgi:
-  << : [ *build, *only-changes ]
-  except: [ merge_requests, master, schedules ]
-build:nginx:
-  << : [ *build, *only-changes ]
-  except: [ merge_requests, master, schedules ]
-
-
-.push-tags: &push-tags
+.tag:
   stage: deploy
-  only:
+  image: docker:stable
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule"
+    variables:
+      TAG: latest
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     << : *change-files
-    refs: [ master, develop, schedules ]
+    variables:
+      TAG: latest
+  - if: $CI_COMMIT_BRANCH == "develop"
+    << : *change-files
+    variables:
+      TAG: unstable
   script: |
-    BUILD_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME##*:}/build:${CI_PIPELINE_ID}
-    DEPLOY_REPO=${CI_REGISTRY_IMAGE}/${CI_JOB_NAME##*:}
-    VERSION=`eval "docker run --rm ${BUILD_REPO} ${GET_VERSION}"`
-    . scripts/deploy.sh
+    BUILD_REPO=${CI_REGISTRY_IMAGE}/${TARGET}/build:${CI_PIPELINE_ID}
+    DEPLOY_REPO=${CI_REGISTRY_IMAGE}/${TARGET}
+    if [ $TAG = latest ]; then
+      VERSION=`eval "docker run --rm ${BUILD_REPO} ${GET_VERSION}"`
+    fi
+    . scripts/deploy.sh $TAG ${VERSION-}
 
-push:fastcgi:
-  <<: *push-tags
+
+Build Wordpress:
+  extends: [.build]
   variables:
+    TARGET: fastcgi
+
+Build Nginx:
+  extends: [.build]
+  variables:
+    TARGET: nginx
+
+
+Tag Wordpress Image:
+  extends: [.tag]
+  variables:
+    TARGET: fastcgi
     GET_VERSION: wp core version
-push:nginx:
-  <<: *push-tags
+
+Tag Nginx Image:
+  extends: [.tag]
   variables:
+    TARGET: nginx
     GET_VERSION: nginx -V 2>&1 | sed -n '/nginx version:/s/.*nginx\///p'
