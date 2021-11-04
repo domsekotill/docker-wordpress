@@ -1,3 +1,15 @@
+variables:
+  WORDPRESS_VERSION:
+    value: 5.8.1
+    description: WordPress release
+  PHP_VERSION:
+    value: 8.0.0
+    description: PHP release to build into the backend image
+  NGINX_VERSION:
+    value: 1.21.3
+    description: Nginx release for the frontend image
+
+
 .changes: &change-files
   changes:
   - .gitlab-ci.yml
@@ -22,9 +34,12 @@
     --local context=.
     --local dockerfile=.
     --opt target=${TARGET}
-    ${NGINX_VERSION:+--opt build-arg:nginx_version=$NGINX_VERSION}
-    ${PHP_VERSION:+--opt build-arg:php_version=$PHP_VERSION}
-    ${WORDPRESS_VERSION:+--opt build-arg:wp_version=$WORDPRESS_VERSION}
+    --opt build-arg:nginx_version=${NGINX_VERSION}
+    --opt build-arg:php_version=${PHP_VERSION}
+    --opt build-arg:wp_version=${WORDPRESS_VERSION}
+    --opt label:nginx.version=${NGINX_VERSION}
+    --opt label:php.version=${PHP_VERSION}
+    --opt label:wordpress.version=${WORDPRESS_VERSION}
     --output type=image,name=${BUILD_TAG},push=true
 
 
