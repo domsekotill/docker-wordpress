@@ -223,6 +223,12 @@ collect_static()
 		. static/
 }
 
+generate_static()
+{
+	mkdir -p static/errors
+	wp eval 'get_template_part("404");' >static/errors/404.html
+}
+
 deactivate_missing_plugins()
 {
 	# Output active plugin entrypoints as a JSON array
@@ -299,6 +305,7 @@ case "$1" in
 		setup_components
 		setup_media
 		collect_static
+		generate_static
 		timestamp "Completed Wordpress preparation"
 		run_background_cron
 		exec "$@" "${extra_args[@]}"
