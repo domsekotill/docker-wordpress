@@ -28,7 +28,7 @@ variables:
   - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   - << : *change-files
   script:
-  - BUILD_TAG=${CI_REGISTRY_IMAGE}/${TARGET}/build:${CI_PIPELINE_ID}
+  - BUILD_TAG=${CI_REGISTRY_IMAGE}/${TARGET}:build-${CI_PIPELINE_IID}
   - buildctl build
     --frontend=dockerfile.v0
     --local context=.
@@ -45,7 +45,7 @@ variables:
 
 .tag:
   stage: deploy
-  image: docker:stable
+  image: docker.kodo.org.uk/ci-images/docker-reg:latest
   rules:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule"
     variables:
@@ -59,12 +59,11 @@ variables:
     variables:
       TAG: unstable
   script: |
-    BUILD_REPO=${CI_REGISTRY_IMAGE}/${TARGET}/build:${CI_PIPELINE_ID}
-    DEPLOY_REPO=${CI_REGISTRY_IMAGE}/${TARGET}
-    if [ $TAG = latest ]; then
-      VERSION=`eval "docker run --rm ${BUILD_REPO} ${GET_VERSION}"`
+    BUILD_TAG=${CI_REGISTRY_IMAGE}/${TARGET}:build-${CI_PIPELINE_IID}
+    docker-reg $BUILD_TAG retag $TAG
+    if [ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]; then
+      docker-reg $BUILD_TAG retag $VERSION
     fi
-    . scripts/deploy.sh $TAG ${VERSION-}
 
 
 Build Wordpress:
@@ -82,10 +81,10 @@ Tag Wordpress Image:
   extends: [.tag]
   variables:
     TARGET: fastcgi
-    GET_VERSION: wp core version
+    VERSION: $WORDPRESS_VERSION
 
 Tag Nginx Image:
   extends: [.tag]
   variables:
     TARGET: nginx
-    GET_VERSION: nginx -V 2>&1 | sed -n '/nginx version:/s/.*nginx\///p'
+    VERSION: $NGINX_VERSION
