@@ -20,6 +20,17 @@ from utils import URL
 from utils import PatternEnum
 
 
+class Method(PatternEnum):
+	"""
+	HTTP methods
+	"""
+
+	GET = "GET"
+	POST = "POST"
+	PUT = "PUT"
+	# add more methods as needed…
+
+
 class ResponseCode(int, PatternEnum):
 	"""
 	HTTP response codes
@@ -32,11 +43,13 @@ class ResponseCode(int, PatternEnum):
 	temporary_redirect = 307
 	permanent_redirect = 308
 	not_found = 404
+	method_not_allowed = 405
 
 	# Aliases for the above codes, for mapping natural language in feature files to enums
 	ALIASES = {
 		"OK": 200,
 		"Not Found": 404,
+		"Method Not Allowed": 405,
 	}
 
 	@staticmethod
@@ -67,6 +80,21 @@ def get_request(context: Context, url: URL) -> None:
 	context.response = context.session.get(context.site.url / url, allow_redirects=False)
 
 
+@when("data is sent with {method:Method} to {url:URL}")
+def post_request(context: Context, method: Method, url: URL) -> None:
+	"""
+	Send context text to a URL endpoint and assign the response to the context
+	"""
+	if context.text is None:
+		raise ValueError("Missing data, please add as text to step definition")
+	context.response = context.session.request(
+		method.value,
+		context.site.url / url,
+		data=context.text.strip().format(context=context).encode("utf-8"),
+		allow_redirects=False,
+	)
+
+
 @when("the homepage is requested")
 def get_homepage(context: Context) -> None:
 	"""
@@ -85,6 +113,18 @@ def assert_response(context: Context, response: ResponseCode) -> None:
 	"""
 	assert context.response.status_code == response, \
 		f"Expected response {response}: got {context.response.status_code}"
+
+
+@then('''the "{header_name}" header's value is "{header_value}"''')
+def assert_header(context: Context, header_name: str, header_value: str) -> None:
+	"""
+	Assert that an expected header was received during a previous step
+	"""
+	headers = context.response.headers
+	assert header_name in headers, \
+		f"Expected header not found in response: {header_name!r}"
+	assert headers[header_name] == header_value, \
+		f"Expected header value not found: got {headers[header_name]!r}"
 
 
 @then("the response body is JSON")

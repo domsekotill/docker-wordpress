@@ -29,7 +29,6 @@ Feature: Script Access and Restrictions
 			| path                                                | result    |
 			| /wp-activate.php                                    | Not Found |
 			| /wp-blog-header.php                                 | Not Found |
-			| /wp-comments-post.php                               | Not Found |
 			| /wp-config.php                                      | Not Found |
 			| /wp-cron.php                                        | Not Found |
 			| /wp-load.php                                        | Not Found |
@@ -47,8 +46,24 @@ Feature: Script Access and Restrictions
 			| /wp-login.php                                       | OK        |
 			| /wp-admin/                                          | 302       |
 			| /wp-admin/index.php                                 | 302       |
+			| /wp-comments-post.php                               | 405       |
 
 	Scenario: Check the JSON API is accessible
 		When /wp-json/wp/v2/ is requested
 		Then OK is returned
 		And the response body is JSON
+
+	Scenario: "GET /wp-comments-post.php" is not allowed
+		When /wp-comments-post.php is requested
+		Then 405 is returned
+		And the "Allow" header's value is "POST"
+
+	Scenario: "POST /wp-contents-post.php" accepts content
+		Given a blank post exists
+		When data is sent with POST to /wp-comments-post.php
+		"""
+		comment_post_id={context.post[ID]}&author=John+Smith&email=j.smith@example.com&comment=First+%F0%9F%8D%86
+		"""
+		Then OK is returned
+		# (Why 200 instead of 201? Probably the same reason 200 is returned when
+		# there are missing values?! It's WordPress.)
