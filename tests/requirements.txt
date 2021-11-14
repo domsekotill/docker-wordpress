@@ -1,0 +1,6 @@
+Python ~=3.9; python_version < '3.9'
+
+behave
+jsonpath-python ~=1.0
+requests ~=2.26
+trio ~=0.19.0

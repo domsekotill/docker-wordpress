@@ -1,0 +1,43 @@
+from io import StringIO
+from typing import IO
+
+from .log_capture import LoggingCapture
+from .model import Configuration
+from .runner import Context
+
+class Captured:
+
+	stdout: str
+	stderr: str
+	log_output: str
+
+	@property
+	def output(self) -> str: ...
+
+	def __init__(self, stdout: str = ..., stderr: str = ..., log_output: str = ...): ...
+	def __add__(self, other: Captured) -> Captured: ...
+
+	def reset(self) -> None: ...
+	def add(self, captured: Captured) -> Captured: ...
+	def make_report(self) -> str: ...
+
+
+class CaptureController:
+
+	config: Configuration
+	stdout_capture: StringIO
+	stderr_capture: StringIO
+	log_capture: LoggingCapture
+	old_stdout: IO[str]
+	old_stderr: IO[str]
+
+	@property
+	def capture(self) -> Captured: ...
+
+	def __init__(self, config: Configuration): ...
+
+	def setup_capture(self, context: Context) -> None: ...
+	def start_capture(self) -> None: ...
+	def stop_capture(self) -> None: ...
+	def teardown_capture(self) -> None: ...
+	def make_capture_report(self) -> str: ...

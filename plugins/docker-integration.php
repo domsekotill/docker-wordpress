@@ -1,13 +1,18 @@
 <?php
 /**
- * Plugin Name: Media URL Fix
+ * Copyright 2019-2021 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+ *
+ * Plugin Name: Docker Image Integration
  * Plugin URI: https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/tree/master/plugins
- * Description: Adjusts the media URL path base to /media, where the Nginx instance is hosting it.
+ * Description: Hooks in behaviour for operating cleanly in a Docker environment
  * Licence: MPL-2.0
  * Licence URI: https://www.mozilla.org/en-US/MPL/2.0/
  * Author: Dominik Sekotill
  * Author URI: https://code.kodo.org.uk/dom
  */
+
+
+// Media URL Fix
 
 add_action( 'plugins_loaded', function() {
 	add_filter( 'upload_dir', function( $paths ) {
@@ -24,6 +29,70 @@ add_action( 'plugins_loaded', function() {
 		return $paths;
 	});
 });
+
+
+// Block File Modification
+
+add_filter(
+	'file_mod_allowed',
+
+	function( $setting, $context ) {
+		if ( $context == 'automatic_updater' ) {
+			return true;
+		}
+		return $setting;
+	},
+
+	10, 2
+);
+
+
+// Disable Plugins & Themes
+
+add_filter(
+	'user_has_cap',
+
+	function( $allcaps, $caps, $args ) {
+		switch ($args[0]) {
+		case 'delete_plugins':
+		case 'delete_themes':
+		case 'edit_plugins':
+		case 'edit_themes':
+		case 'install_plugins':
+		case 'install_themes':
+		case 'update_plugins':
+		case 'update_themes':
+			$allcaps[$caps[0]] = false;
+		}
+		return $allcaps;
+	},
+
+	10, 3
+);
+
+
+// S3-Uploads Integration
+
+if ( defined( 'S3_UPLOADS_ENDPOINT_URL' ) || defined( 'WP_CLI' ) ):
+
+add_filter(
+	's3_uploads_s3_client_params',
+
+	function ( $params ) {
+		$params['endpoint'] = S3_UPLOADS_ENDPOINT_URL;
+		$params['bucket_endpoint'] = true;
+		$params['disable_host_prefix_injection'] = true;
+		$params['use_path_style_endpoint'] = true;
+		$params['debug'] = WP_DEBUG && WP_DEBUG_DISPLAY;
+		$params['region'] = '';
+		return $params;
+	}
+);
+
+endif;
+
+
+// Functions
 
 function unparse_url( array $parts ) {
 	return (

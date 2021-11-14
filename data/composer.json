@@ -8,7 +8,8 @@
 		}
 	],
 	"require": {
-		"humanmade/s3-uploads": "dev-develop"
+		"humanmade/s3-uploads": "dev-develop",
+		"ayesh/wordpress-password-hash": "2.*"
 	},
 	"config": {
 		"gitlab-domains": [ "code.kodo.org.uk" ]
@@ -17,5 +18,10 @@
 		"installer-paths": {
 			"wp-content/mu-plugins/{$name}/": [ "type:wordpress-plugin" ]
 		}
+	},
+	"scripts": {
+		"post-update-cmd": [
+			"cd */mu-plugins;for f in */*.php;do [ `basename $f` != index.php ] && ln -s $f `dirname $f`.php; done"
+		]
 	}
 }
