@@ -95,6 +95,5 @@ repos:
   - id: mypy
     args: ["--config-file=.lint.cfg"]
     additional_dependencies:
-    - trio-typing
     - types-requests
-    - git+https://code.kodo.org.uk/dom/type-stubs.git#type-stubs[jsonpath,parse]
+    - git+https://code.kodo.org.uk/dom/behave-utils.git@v0.2#behave-utils

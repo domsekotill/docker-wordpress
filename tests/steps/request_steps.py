@@ -16,8 +16,8 @@ from typing import Any
 from behave import then
 from behave import when
 from behave.runner import Context
-from utils import URL
-from utils import PatternEnum
+from behave_utils import URL
+from behave_utils import PatternEnum
 
 
 class Method(PatternEnum):

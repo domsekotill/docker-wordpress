@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING
 
 from behave import then
 from behave import when
-from utils.behave import PatternEnum
-from utils.behave import register_pattern
+from behave_utils.behave import PatternEnum
+from behave_utils.behave import register_pattern
 from wp import Container
 
 if TYPE_CHECKING:
