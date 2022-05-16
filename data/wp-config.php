@@ -17,6 +17,13 @@ define('DISABLE_WP_CRON', true);
 define('UPLOADS', 'media');
 
 /**
+ * Disable script concatenation in the admin interface.
+ * This puts extra load on the PHP server that Nginx should be taking.
+ * The benefits of concatenation should be negated when using HTTP/2.
+ **/
+define('CONCATENATE_SCRIPTS', false);
+
+/**
  * Stop the site-health tool from complaining about unwritable filesystems.
  * Background upgrades are performed by a user with write privileges via the
  * wp-cli tool.
