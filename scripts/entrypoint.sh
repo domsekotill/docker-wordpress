@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2019-2021 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+# Copyright 2019-2022 Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -42,8 +42,7 @@ declare -a PHP_DIRECTIVES=(
 	post_max_size=20M
 )
 declare -a WP_CONFIGS=(
-	${WP_CONFIGS-}
-	${CONFIG_DIR}/*config.php
+	${WP_CONFIGS-${CONFIG_DIR}/**/*config.php}
 )
 
 
