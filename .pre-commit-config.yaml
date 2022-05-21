@@ -40,7 +40,7 @@ repos:
   - id: check-executable-modes
   - id: check-for-squash
   - id: copyright-notice
-    exclude: ^data/
+    exclude: ^data/|^scripts/(compile-|install-)
   - id: protect-first-parent
 
 - repo: https://github.com/pre-commit/pygrep-hooks
