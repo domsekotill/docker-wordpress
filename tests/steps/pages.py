@@ -11,7 +11,6 @@ Step implementations involving creating and requesting WP posts (and pages)
 from __future__ import annotations
 
 from codecs import decode as utf8_decode
-from typing import Any
 from typing import Iterator
 
 from behave import fixture
@@ -123,17 +122,12 @@ def assert_contains(
 @fixture
 def wp_post(
 	context: Context, /,
-	post_type: PostType|None = None,
+	post_type: PostType,
 	content: str = DEFAULT_CONTENT,
-	*a: Any,
-	**k: Any,
 ) -> Iterator[JSONObject]:
 	"""
 	Create a WP post fixture of the given type with the given content
 	"""
-	assert post_type is not None, \
-		"post_type MUST be supplied to use_fixture when calling with wp_post"
-
 	wp = context.site.backend
 	postid = wp.cli(
 		"post", "create",
@@ -162,8 +156,6 @@ def set_specials(
 	context: Context, /,
 	homepage: JSONObject|None = None,
 	posts: JSONObject|None = None,
-	*a: Any,
-	**k: Any,
 ) -> Iterator[None]:
 	"""
 	Set the homepage and post index to new pages, creating default pages if needed

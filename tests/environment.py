@@ -17,7 +17,6 @@ from __future__ import annotations
 import sys
 from os import environ
 from typing import TYPE_CHECKING
-from typing import Any
 from typing import Iterator
 
 from behave import fixture
@@ -60,22 +59,17 @@ def before_scenario(context: ScenarioContext, scenario: Scenario) -> None:
 	context.session = use_fixture(requests_session, context)
 
 
-# Todo(dom.sekotill): When PEP-612 is properly implemented in mypy the [*a, **k] and default
-# values nonsense can be removed from fixtures
-
 @fixture
-def setup_test_cluster(context: Context, /, site_url: URL|None = None, *a: Any, **k: Any) -> Iterator[Site]:
+def setup_test_cluster(context: Context, /, site_url: URL) -> Iterator[Site]:
 	"""
 	Prepare and return the details of a site fixture
 	"""
-	assert site_url is not None, \
-		"site_url is required, but default supplied until PEP-612 supported"
 	with test_cluster(site_url) as site:
 		yield site
 
 
 @fixture
-def requests_session(context: ScenarioContext, /, *a: Any, **k: Any) -> Iterator[Session]:
+def requests_session(context: ScenarioContext, /) -> Iterator[Session]:
 	"""
 	Create and configure a `requests` session for accessing site fixtures
 	"""
@@ -86,7 +80,7 @@ def requests_session(context: ScenarioContext, /, *a: Any, **k: Any) -> Iterator
 
 
 @fixture
-def db_snapshot_rollback(context: FeatureContext, /, *a: Any, **k: Any) -> Iterator[None]:
+def db_snapshot_rollback(context: FeatureContext, /) -> Iterator[None]:
 	"""
 	Manage the state of a site's database as a revertible fixture
 	"""

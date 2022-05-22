@@ -13,8 +13,10 @@ from __future__ import annotations
 from contextlib import contextmanager
 from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import Iterator
 from typing import NamedTuple
+from typing import TypeVar
 
 from behave_utils import URL
 from behave_utils import wait
@@ -34,6 +36,9 @@ class Wordpress(Container):
 	"""
 
 	DEFAULT_ALIASES = ("upstream",)
+
+	if TYPE_CHECKING:
+		T = TypeVar("T", bound="Wordpress")
 
 	def __init__(self, site_url: URL, database: Mysql, network: Network|None = None):
 		Container.__init__(
@@ -66,7 +71,7 @@ class Wordpress(Container):
 		return Cli(self, "wp")
 
 	@contextmanager
-	def started(self) -> Iterator[Container]:
+	def started(self: T) -> Iterator[T]:
 		with self:
 			self.start()
 			cmd = ["bash", "-c", "[[ /proc/1/exe -ef `which php-fpm` ]]"]
