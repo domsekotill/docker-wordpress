@@ -17,6 +17,9 @@ from typing import TYPE_CHECKING
 from typing import Iterator
 from typing import TypeVar
 
+from behave import fixture
+from behave import use_fixture
+from behave.runner import Context
 from behave_utils import URL
 from behave_utils import wait
 from behave_utils.docker import Cli
@@ -27,6 +30,7 @@ from behave_utils.docker import Network
 from behave_utils.mysql import Mysql
 
 BUILD_CONTEXT = Path(__file__).parent.parent
+DEFAULT_URL = URL("http://test.example.com")
 
 
 class Wordpress(Container):
@@ -133,13 +137,13 @@ class Site:
 			yield cls(site_url, network, frontend, backend, database)
 
 	@contextmanager
-	def running(self) -> Iterator[None]:
+	def running(self: T) -> Iterator[T]:
 		"""
 		Start all the services and configure the network
 		"""
 		with self.database.started(), self.backend.started(), self.frontend.started():
 			try:
-				yield
+				yield self
 			finally:
 				self._address = None
 
@@ -157,12 +161,32 @@ class Site:
 		return self._address
 
 
-@contextmanager
-def test_cluster(site_url: URL) -> Iterator[Site]:
+@fixture
+def site_fixture(context: Context, /, site_url: URL|None = None) -> Iterator[Site]:
 	"""
-	Configure and start all the necessary containers for use as test fixtures
+	Return a currently in-scope Site instance when used with `use_fixture`
 
-	Deprecated: this is now a wrapper around Site.build() and Site.running()
+	If "site_url" is provided and it doesn't match a current Site instance, a new instance
+	will be created in the current context.
+
+	>>> use_fixture(site_fixture, context)
+	<<< <wp.Site at [...]>
 	"""
-	with Site.build(site_url) as site, site.running():
+	if hasattr(context, "site"):
+		assert isinstance(context.site, Site)
+		if site_url is None or context.site.url == site_url:
+			yield context.site
+			return
+	with Site.build(site_url or DEFAULT_URL) as context.site:
+		yield context.site
+
+
+@fixture
+def running_site_fixture(context: Context, /, site_url: URL|None = None) -> Iterator[Site]:
+	"""
+	Return a currently in-scope Site instance that is running when used with `use_fixture`
+
+	Like `site_fixture` but additionally entered into the `Site.running` context manager.
+	"""
+	with use_fixture(site_fixture, context, site_url=site_url).running() as site:
 		yield site

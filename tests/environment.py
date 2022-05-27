@@ -28,8 +28,7 @@ from behave_utils import URL
 from behave_utils import redirect
 from behave_utils.mysql import snapshot_rollback
 from requests.sessions import Session
-from wp import Site
-from wp import test_cluster
+from wp import running_site_fixture
 
 if TYPE_CHECKING:
 	from behave.runner import FeatureContext
@@ -42,7 +41,7 @@ def before_all(context: Context) -> None:
 	"""
 	Setup fixtures for all tests
 	"""
-	context.site = use_fixture(setup_test_cluster, context, SITE_URL)
+	use_fixture(running_site_fixture, context, site_url=SITE_URL)
 
 
 def before_feature(context: FeatureContext, feature: Feature) -> None:
@@ -60,20 +59,11 @@ def before_scenario(context: ScenarioContext, scenario: Scenario) -> None:
 
 
 @fixture
-def setup_test_cluster(context: Context, /, site_url: URL) -> Iterator[Site]:
-	"""
-	Prepare and return the details of a site fixture
-	"""
-	with test_cluster(site_url) as site:
-		yield site
-
-
-@fixture
 def requests_session(context: ScenarioContext, /) -> Iterator[Session]:
 	"""
 	Create and configure a `requests` session for accessing site fixtures
 	"""
-	site = context.site
+	site = use_fixture(running_site_fixture, context)
 	with Session() as session:
 		redirect(session, site.url, site.address)
 		yield session
@@ -93,7 +83,9 @@ def db_snapshot_rollback(context: FeatureContext, /) -> Iterator[None]:
 if __name__ == "__main__":
 	from subprocess import run
 
-	with test_cluster(SITE_URL) as site:
+	from wp import Site
+
+	with Site.build(SITE_URL) as site, site.running():
 		run([environ.get("SHELL", "/bin/sh")])
 
 elif not sys.stderr.isatty():
