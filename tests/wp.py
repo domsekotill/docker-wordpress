@@ -129,12 +129,12 @@ class Site:
 		test_dir = Path(__file__).parent
 		db_init = test_dir / "mysql-init.sql"
 
-		with Network() as network:
-			database = Mysql(network=network, init_files=[db_init])
+		with Network() as network, Mysql(network=network, init_files=[db_init]) as database:
 			database.start()  # Get a head start on initialising the database
-			backend = Wordpress(site_url, database, network=network)
-			frontend = Nginx(backend, network=network)
-			yield cls(site_url, network, frontend, backend, database)
+			with \
+				Wordpress(site_url, database, network=network) as backend, \
+				Nginx(backend, network=network) as frontend:
+					yield cls(site_url, network, frontend, backend, database)
 
 	@contextmanager
 	def running(self: T) -> Iterator[T]:
