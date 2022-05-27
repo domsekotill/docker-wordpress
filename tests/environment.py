@@ -25,9 +25,7 @@ from behave.model import Feature
 from behave.model import Scenario
 from behave.runner import Context
 from behave_utils import URL
-from behave_utils import redirect
 from behave_utils.mysql import snapshot_rollback
-from requests.sessions import Session
 from wp import running_site_fixture
 
 if TYPE_CHECKING:
@@ -55,18 +53,6 @@ def before_scenario(context: ScenarioContext, scenario: Scenario) -> None:
 	"""
 	Setup tools for each scenario
 	"""
-	context.session = use_fixture(requests_session, context)
-
-
-@fixture
-def requests_session(context: ScenarioContext, /) -> Iterator[Session]:
-	"""
-	Create and configure a `requests` session for accessing site fixtures
-	"""
-	site = use_fixture(running_site_fixture, context)
-	with Session() as session:
-		redirect(session, site.url, site.address)
-		yield session
 
 
 @fixture
