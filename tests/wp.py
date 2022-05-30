@@ -122,6 +122,7 @@ class Site:
 		self.backend = backend
 		self.database = database
 		self._address: IPv4Address|None = None
+		self._running = False
 
 	@classmethod
 	@contextmanager
@@ -141,10 +142,15 @@ class Site:
 		"""
 		Start all the services and configure the network
 		"""
+		if self._running:
+			yield self
+			return
+		self._running = True
 		with self.database.started(), self.backend.started(), self.frontend.started():
 			try:
 				yield self
 			finally:
+				self._running = False
 				self._address = None
 
 	@property
