@@ -50,7 +50,7 @@ repos:
   - id: python-no-log-warn
   - id: python-use-type-annotations
 
-- repo: https://github.com/hakancelik96/unimport
+- repo: https://github.com/hakancelikdev/unimport
   rev: 0.9.2
   hooks:
   - id: unimport
