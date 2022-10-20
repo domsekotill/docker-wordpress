@@ -12,6 +12,9 @@
 		"ayesh/wordpress-password-hash": "2.*"
 	},
 	"config": {
+		"allow-plugins": {
+			"composer/installers": true
+		},
 		"gitlab-domains": [ "code.kodo.org.uk" ]
 	},
 	"extra": {
