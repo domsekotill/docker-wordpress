@@ -96,4 +96,4 @@ repos:
     args: ["--config-file=.lint.cfg"]
     additional_dependencies:
     - types-requests
-    - git+https://code.kodo.org.uk/dom/behave-utils.git@v0.2#behave-utils
+    - behave-utils ~=0.3.2

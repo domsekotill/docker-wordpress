@@ -1,5 +1,5 @@
 Python ~=3.9; python_version < '3.9'
 
 behave
-git+https://code.kodo.org.uk/dom/behave-utils.git@v0.2#behave-utils
+behave-utils ~=0.3.2
 requests ~=2.26
