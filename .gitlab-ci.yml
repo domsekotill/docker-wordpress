@@ -37,7 +37,6 @@ Build Images:
     - plugins/*
     - scripts/*
   variables:
-    PLATFORMS: ""
     BUILD_ARGS: >-
       wp_version=$WORDPRESS_VERSION
       php_version=$PHP_VERSION
@@ -45,6 +44,7 @@ Build Images:
   parallel:
     matrix:
     - TARGET: [nginx, fastcgi]
+      PLATFORMS: [""]
   trigger:
     include:
     - project: dom/project-templates
