@@ -48,7 +48,7 @@ Build Images:
   trigger:
     include:
     - project: dom/project-templates
-      file: pipeline-templates/build-image.yml
+      file: /pipeline-templates/build-image.yml
     strategy: depend
 
 
