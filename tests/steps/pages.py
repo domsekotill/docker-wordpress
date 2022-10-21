@@ -1,4 +1,4 @@
-#  Copyright 2021  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2021-2022  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -64,7 +64,9 @@ def create_post(context: Context, post_type: PostType, text: str|None = None) ->
 	"""
 	Create a WP post of the given type and store it in the context with the type as the name
 	"""
-	post = use_fixture(wp_post, context, post_type, text or getattr(context, "text", ""))
+	text = text or getattr(context, "text", "")
+	assert isinstance(text, str)
+	post = use_fixture(wp_post, context, post_type, text)
 	setattr(context, post_type.value, post)
 
 
