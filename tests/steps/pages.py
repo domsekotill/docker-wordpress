@@ -20,11 +20,11 @@ from behave import then
 from behave import use_fixture
 from behave import when
 from behave.runner import Context
+from behave_utils import URL
+from behave_utils import JSONArray
+from behave_utils import JSONObject
+from behave_utils import PatternEnum
 from request_steps import get_request
-from utils import URL
-from utils import JSONArray
-from utils import JSONObject
-from utils import PatternEnum
 
 DEFAULT_CONTENT = """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut

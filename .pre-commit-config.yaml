@@ -40,7 +40,7 @@ repos:
   - id: check-executable-modes
   - id: check-for-squash
   - id: copyright-notice
-    exclude: ^data/
+    exclude: ^data/|^scripts/(compile-|install-)
   - id: protect-first-parent
 
 - repo: https://github.com/pre-commit/pygrep-hooks
@@ -95,6 +95,5 @@ repos:
   - id: mypy
     args: ["--config-file=.lint.cfg"]
     additional_dependencies:
-    - trio-typing
     - types-requests
-    - git+https://code.kodo.org.uk/dom/type-stubs.git#type-stubs[jsonpath,parse]
+    - behave-utils ~=0.3.2

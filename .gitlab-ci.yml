@@ -1,90 +1,65 @@
 variables:
   WORDPRESS_VERSION:
-    value: 5.8.1
+    value: 6.0.3
     description: WordPress release
   PHP_VERSION:
-    value: 8.0.0
+    value: 8.1.11
     description: PHP release to build into the backend image
   NGINX_VERSION:
-    value: 1.21.3
+    value: 1.23.2
     description: Nginx release for the frontend image
 
 
-.changes: &change-files
-  changes:
-  - .gitlab-ci.yml
-  - Dockerfile
-  - data/*
-  - plugins/*
-  - scripts/*
-
-.build:
-  stage: build
-  image: docker.kodo.org.uk/ci-images/buildkit/buildctl:latest
-  tags: [buildkit]
+workflow:
   rules:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    variables: {BUILD_RELEASE: "true"}
   - if: $CI_PIPELINE_SOURCE == "schedule"
-  - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  - << : *change-files
-  script:
-  - BUILD_TAG=${CI_REGISTRY_IMAGE}/${TARGET}:build-${CI_PIPELINE_IID}
-  - buildctl build
-    --frontend=dockerfile.v0
-    --local context=.
-    --local dockerfile=.
-    --opt target=${TARGET}
-    --opt build-arg:nginx_version=${NGINX_VERSION}
-    --opt build-arg:php_version=${PHP_VERSION}
-    --opt build-arg:wp_version=${WORDPRESS_VERSION}
-    --opt label:nginx.version=${NGINX_VERSION}
-    --opt label:php.version=${PHP_VERSION}
-    --opt label:wordpress.version=${WORDPRESS_VERSION}
-    --output type=image,name=${BUILD_TAG},push=true
+    variables: {BUILD_RELEASE: "true"}
+  - when: always
 
 
-.tag:
-  stage: deploy
-  image: docker.kodo.org.uk/ci-images/docker-reg:latest
+include:
+- project: dom/project-templates
+  file: /pipeline-templates/pre-commit.yml
+
+
+Build Images:
+  stage: build
   rules:
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule"
-    variables:
-      TAG: latest
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    << : *change-files
-    variables:
-      TAG: latest
-  - if: $CI_COMMIT_BRANCH == "develop"
-    << : *change-files
-    variables:
-      TAG: unstable
-  script: |
-    BUILD_TAG=${CI_REGISTRY_IMAGE}/${TARGET}:build-${CI_PIPELINE_IID}
-    docker-reg $BUILD_TAG retag $TAG
-    if [ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]; then
-      docker-reg $BUILD_TAG retag $VERSION
-    fi
-
-
-Build Wordpress:
-  extends: [.build]
+  - if: $BUILD_RELEASE
+    when: never
+  - if: $CI_PIPELINE_SOURCE == "web"
+  - changes:
+    - .gitlab-ci.yml
+    - Dockerfile
+    - data/*
+    - plugins/*
+    - scripts/*
   variables:
-    TARGET: fastcgi
+    PLATFORMS: ""
+    BUILD_ARGS: >-
+      wp_version=$WORDPRESS_VERSION
+      php_version=$PHP_VERSION
+      nginx_version=$NGINX_VERSION
+  parallel:
+    matrix:
+    - TARGET: [nginx, fastcgi]
+  trigger:
+    include:
+    - project: dom/project-templates
+      file: /pipeline-templates/build-image.yml
+    strategy: depend
 
-Build Nginx:
-  extends: [.build]
-  variables:
-    TARGET: nginx
 
-
-Tag Wordpress Image:
-  extends: [.tag]
-  variables:
-    TARGET: fastcgi
-    VERSION: $WORDPRESS_VERSION
-
-Tag Nginx Image:
-  extends: [.tag]
-  variables:
-    TARGET: nginx
-    VERSION: $NGINX_VERSION
+Build Releases:
+  stage: build
+  extends: [Build Images]
+  rules:
+  - if: $BUILD_RELEASE
+  parallel:
+    matrix:
+    - TARGET: [nginx]
+      RELEASE: [$NGINX_VERSION]
+    - TARGET: [fastcgi]
+      RELEASE: [$WORDPRESS_VERSION]

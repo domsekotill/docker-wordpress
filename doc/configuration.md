@@ -237,7 +237,7 @@ The path to a file containing lines to append to [**THEMES**](#themes).
 
 **Type**: array\
 **Required**: no\
-**Default**: /etc/wordpress/*config.php
+**Default**: /etc/wordpress/**/*config.php
 
 This is an array of files to include in wp-config.php.  The default includes 
 a wildcard which is expanded.  Wildcards in the environment variable will 
