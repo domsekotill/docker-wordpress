@@ -1,4 +1,4 @@
-#  Copyright 2021  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2021-2022  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -18,6 +18,8 @@ from behave import when
 from behave.runner import Context
 from behave_utils import URL
 from behave_utils import PatternEnum
+
+SAMPLE_SITE_NAME = "http://test.example.com"
 
 
 class Method(PatternEnum):
@@ -120,6 +122,8 @@ def assert_header(context: Context, header_name: str, header_value: str) -> None
 	"""
 	Assert that an expected header was received during a previous step
 	"""
+	if SAMPLE_SITE_NAME in header_value:
+		header_value = header_value.replace(SAMPLE_SITE_NAME, context.site.url)
 	headers = context.response.headers
 	assert header_name in headers, \
 		f"Expected header not found in response: {header_name!r}"
