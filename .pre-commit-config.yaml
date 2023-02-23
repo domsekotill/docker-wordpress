@@ -75,16 +75,15 @@ repos:
     types_or: [python, pyi]
     stages: [commit, manual]
 
-- repo: https://gitlab.com/pycqa/flake8
-  rev: 3.8.4
+- repo: https://github.com/flakeheaven/flakeheaven
+  rev: 1.0.1
   hooks:
-  - id: flake8
+  - id: flakeheaven
     args: ["--config=.lint.cfg"]
     additional_dependencies:
     - flake8-bugbear
     - flake8-docstrings
     - flake8-print
-    - flake8-requirements
     - flake8-return
     - flake8-sfs
     - flake8-tabs

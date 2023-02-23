@@ -1,0 +1,16 @@
+[tool.flakeheaven]
+base = "https://code.kodo.org.uk/dom/project-templates/-/raw/main/.flakerules.toml"
+max_line_length = 92
+max_doc_length = 92
+
+[tool.flakeheaven.plugins]
+pycodestyle = ["-E701", "-E226"]
+
+[tool.flakeheaven.exceptions."tests/"]
+flake8-docstrings = ["-D100"]
+
+[tool.flakeheaven.exceptions."README.md"]
+flake8-docstrings = ["-*"]
+
+[tool.flakeheaven.exceptions."doc/*"]
+flake8-docstrings = ["-*"]
