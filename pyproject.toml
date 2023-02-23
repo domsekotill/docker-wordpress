@@ -1,3 +1,8 @@
+[tool.isort]
+force_single_line = true
+known_first_party = "kilter.protocol"
+
+
 [tool.flakeheaven]
 base = "https://code.kodo.org.uk/dom/project-templates/-/raw/main/.flakerules.toml"
 max_line_length = 92
@@ -14,3 +19,10 @@ flake8-docstrings = ["-*"]
 
 [tool.flakeheaven.exceptions."doc/*"]
 flake8-docstrings = ["-*"]
+
+
+[tool.mypy]
+strict = true
+warn_unused_configs = true
+warn_unreachable = true
+mypy_path = "tests"
