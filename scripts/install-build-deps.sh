@@ -12,3 +12,4 @@ apk add \
 	libpng-dev \
 	libwebp-dev \
 	libzip-dev \
+	linux-headers \
