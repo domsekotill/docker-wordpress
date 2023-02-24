@@ -1,2 +1,5 @@
 # Python (for tests)
 *.py[co]
+
+# Running during development with docker-compose
+/compose-conf.d/
