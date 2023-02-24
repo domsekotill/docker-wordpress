@@ -82,6 +82,13 @@ create_config()
 }
 
 setup_database() {
+	local admin_name=${SITE_ADMIN:-admin}
+	local admin_email=${SITE_ADMIN_EMAIL:-admin@$domain}
+	local admin_password=${SITE_ADMIN_PASSWORD-}
+
+	# Clear potentialy sensitive information from environment lest it leaks
+	unset ${!SITE_ADMIN*}
+
 	wp core is-installed && return
 
 	local domain=${SITE_URL#*://}
@@ -90,12 +97,9 @@ setup_database() {
 	wp core install \
 		--url="${SITE_URL%/}" \
 		--title="${SITE_TITLE:-New Wordpress Site}" \
-		--admin_user="${SITE_ADMIN:-admin}" \
-		--admin_email="${SITE_ADMIN_EMAIL:-admin@$domain}" \
-		${SITE_ADMIN_PASSWORD+--admin_password="${SITE_ADMIN_PASSWORD}"}
-
-	# Clear potentialy sensitive information from environment lest it leaks
-	unset ${!SITE_ADMIN*}
+		--admin_user="${admin_name}" \
+		--admin_email="${admin_email}" \
+		${admin_password:+--admin_password="${admin_password}"}
 
 	# Start with a pretty, restful permalink structure, instead of the plain,
 	# ugly default. The user can change this as they please through the admin
