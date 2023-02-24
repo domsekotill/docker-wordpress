@@ -15,7 +15,6 @@ https://behave.readthedocs.io/en/stable/tutorial.html#environmental-controls
 from __future__ import annotations
 
 import sys
-from os import environ
 from typing import TYPE_CHECKING
 
 from behave import use_fixture
@@ -53,15 +52,7 @@ def before_scenario(context: ScenarioContext, scenario: Scenario) -> None:
 	"""
 
 
-if __name__ == "__main__":
-	from subprocess import run
-
-	from wp import Site
-
-	with Site.build(SITE_URL) as site, site.running():
-		run([environ.get("SHELL", "/bin/sh")])
-
-elif not sys.stderr.isatty():
+if not sys.stderr.isatty():
 	import logging
 
 	logging.basicConfig(level=logging.DEBUG, stream=sys.stderr)
