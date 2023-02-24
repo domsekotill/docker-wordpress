@@ -147,6 +147,15 @@ An array of "key=value" strings declaring [PHP directives][].
 > arguments preceded by the '-d' flag:
 > `-d upload_max_filesize=20M -d post_max_size=20M`
 
+### SANDBOX_MODE
+
+**Type**: flag\
+**Required**: no\
+
+If set, [sandbox mode](sandbox-mode.md) is enabled.
+
+**Do not set on production sites**
+
 ### SITE_ADMIN
 
 **Type**: string\
