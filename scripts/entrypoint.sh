@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2019-2022 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+# Copyright 2019-2023 Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,6 +25,7 @@ declare -a PLUGINS=( ${PLUGINS-} )
 declare -a LANGUAGES=( ${LANGUAGES-} )
 declare -a STATIC_PATTERNS=(
 	${STATIC_PATTERNS-}
+	".*"
 	"*.crt"
 	"*.md"
 	"*.[pm]o"
