@@ -101,8 +101,8 @@ DOCKER_BUILDKIT=1 docker build -t wordpress-nginx:tag --target=nginx .
   "Licence: Mozilla Public License 2.0"
 
 [pipeline-status]:
-  https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/badges/master/pipeline.svg
+  https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/badges/main/pipeline.svg
 
 [pipeline-report]:
-  https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/pipelines?ref=master
+  https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/pipelines?ref=main
   "Pipelines"
