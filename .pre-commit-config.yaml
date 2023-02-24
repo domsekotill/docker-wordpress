@@ -63,7 +63,6 @@ repos:
   rev: 5.12.0
   hooks:
   - id: isort
-    args: ["--settings=.lint.cfg"]
     stages: [commit, manual]
 
 - repo: https://github.com/asottile/add-trailing-comma
@@ -79,7 +78,6 @@ repos:
   rev: 3.1.0
   hooks:
   - id: flakeheaven
-    args: ["--config=.lint.cfg"]
     additional_dependencies:
     - flake8-bugbear
     - flake8-docstrings
@@ -92,7 +90,7 @@ repos:
   rev: v1.0.1
   hooks:
   - id: mypy
-    args: ["--config-file=.lint.cfg", "--python-version=3.9"]
+    args: ["--python-version=3.9"]
     additional_dependencies:
     - types-requests
     - behave-utils ~=0.3.2
