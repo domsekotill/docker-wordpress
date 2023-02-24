@@ -1,4 +1,4 @@
-#  Copyright 2021-2022  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2021-2023  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,9 +17,7 @@ from __future__ import annotations
 import sys
 from os import environ
 from typing import TYPE_CHECKING
-from typing import Iterator
 
-from behave import fixture
 from behave import use_fixture
 from behave.model import Feature
 from behave.model import Scenario
@@ -53,17 +51,6 @@ def before_scenario(context: ScenarioContext, scenario: Scenario) -> None:
 	"""
 	Setup tools for each scenario
 	"""
-
-
-@fixture
-def db_snapshot_rollback(context: FeatureContext, /) -> Iterator[None]:
-	"""
-	Manage the state of a site's database as a revertible fixture
-	"""
-	db = context.site.database
-	snapshot = db.mysqldump("--all-databases", deserialiser=bytes)
-	yield
-	db.mysql(input=snapshot)
 
 
 if __name__ == "__main__":
