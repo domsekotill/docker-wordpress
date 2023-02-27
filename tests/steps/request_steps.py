@@ -113,8 +113,9 @@ def get_request(context: Context, url: URL) -> None:
 	"""
 	Assign the response from making a GET request to "url" to the context
 	"""
+	site = use_fixture(running_site_fixture, context)
 	session = use_fixture(requests_session, context)
-	context.response = session.get(context.site.url / url, allow_redirects=False)
+	context.response = session.get(site.url / url, allow_redirects=False)
 
 
 @when("data is sent with {method:Method} to {url:URL}")
@@ -124,10 +125,11 @@ def post_request(context: Context, method: Method, url: URL) -> None:
 	"""
 	if context.text is None:
 		raise ValueError("Missing data, please add as text to step definition")
+	site = use_fixture(running_site_fixture, context)
 	session = use_fixture(requests_session, context)
 	context.response = session.request(
 		method.value,
-		context.site.url / url,
+		site.url / url,
 		data=context.text.strip().format(context=context).encode("utf-8"),
 		allow_redirects=False,
 	)
@@ -159,7 +161,8 @@ def assert_header(context: Context, header_name: str, header_value: str) -> None
 	Assert that an expected header was received during a previous step
 	"""
 	if SAMPLE_SITE_NAME in header_value:
-		header_value = header_value.replace(SAMPLE_SITE_NAME, context.site.url)
+		site = use_fixture(running_site_fixture, context)
+		header_value = header_value.replace(SAMPLE_SITE_NAME, site.url)
 	headers = context.response.headers
 	assert header_name in headers, \
 		f"Expected header not found in response: {header_name!r}"

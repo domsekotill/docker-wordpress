@@ -1,4 +1,4 @@
-#  Copyright 2021-2022  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2021-2023  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,10 +15,12 @@ import shlex
 from typing import TYPE_CHECKING
 
 from behave import then
+from behave import use_fixture
 from behave import when
 from behave_utils.behave import PatternEnum
 from behave_utils.behave import register_pattern
 from wp import Container
+from wp import running_site_fixture
 
 if TYPE_CHECKING:
 	from behave.runner import Context
@@ -54,8 +56,9 @@ def run_command(context: Context, args: Arguments) -> None:
 	"""
 	if len(args) == 0:
 		raise ValueError("No arguments in argument list")
+	site = use_fixture(running_site_fixture, context)
 	if args[0] in ('wp', 'php'):
-		container: Container = context.site.backend
+		container: Container = site.backend
 	else:
 		raise ValueError(f"Unknown command: {args[0]}")
 	context.process = container.run(args, capture_output=True)

@@ -17,6 +17,7 @@ from behave import given
 from behave import use_fixture
 from behave.runner import Context
 from behave_utils.docker import Cli
+from wp import running_site_fixture
 
 
 @given("{path} exists in the {container}")
@@ -32,7 +33,8 @@ def container_file(context: Context, path: str, container_name: str) -> Iterator
 	"""
 	Create a file in a named container as a fixture
 	"""
-	container = getattr(context.site, container_name)
+	site = use_fixture(running_site_fixture, context)
+	container = getattr(site, container_name)
 	run = Cli(container)
 	run("tee", path, input=(context.text or "This is a data file!"))
 	yield

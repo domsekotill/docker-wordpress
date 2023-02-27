@@ -34,21 +34,22 @@ SITE_URL = URL("http://test.example.com")
 
 def before_all(context: Context) -> None:
 	"""
-	Setup fixtures for all tests
+	Prepare fixtures for all tests
 	"""
 	use_fixture(running_site_fixture, context, site_url=SITE_URL)
 
 
 def before_feature(context: FeatureContext, feature: Feature) -> None:
 	"""
-	Setup/revert fixtures before each feature
+	Prepare/revert fixtures before each feature
 	"""
-	use_fixture(snapshot_rollback, context, context.site.database)
+	site = use_fixture(running_site_fixture, context)
+	use_fixture(snapshot_rollback, context, site.database)
 
 
 def before_scenario(context: ScenarioContext, scenario: Scenario) -> None:
 	"""
-	Setup tools for each scenario
+	Prepare tools for each scenario
 	"""
 
 

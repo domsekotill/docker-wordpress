@@ -24,6 +24,7 @@ from behave_utils import JSONArray
 from behave_utils import JSONObject
 from behave_utils import PatternEnum
 from request_steps import get_request
+from wp import running_site_fixture
 
 DEFAULT_CONTENT = """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
@@ -48,13 +49,13 @@ def assert_not_exist(context: Context, path: str) -> None:
 	"""
 	Assert that the path does not route to any resource
 	"""
+	site = use_fixture(running_site_fixture, context)
 	cmd = [
 		"post", "list", "--field=url", "--format=json",
 		"--post_type=post,page", "--post_status=publish",
 	]
-	urls = {*context.site.backend.cli(*cmd, deserialiser=JSONArray.from_string)}
-	assert context.site.url / path not in urls, \
-		f"{context.site.url / path} exists"
+	urls = {*site.backend.cli(*cmd, deserialiser=JSONArray.from_string)}
+	assert site.url / path not in urls, f"{site.url / path} exists"
 
 
 @given("a blank {post_type:PostType} exists")
@@ -128,7 +129,7 @@ def wp_post(
 	"""
 	Create a WP post fixture of the given type with the given content
 	"""
-	wp = context.site.backend
+	wp = use_fixture(running_site_fixture, context).backend
 	postid = wp.cli(
 		"post", "create",
 		f"--post_type={post_type.value}", "--post_status=publish",
@@ -162,7 +163,7 @@ def set_specials(
 
 	Pages are reset at the end of a scenario
 	"""
-	wp = context.site.backend
+	wp = use_fixture(running_site_fixture, context).backend
 
 	options = {
 		opt["option_name"]: opt["option_value"]
