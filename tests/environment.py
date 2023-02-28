@@ -21,7 +21,6 @@ from behave import use_fixture
 from behave.model import Feature
 from behave.model import Scenario
 from behave.runner import Context
-from behave_utils import URL
 from behave_utils.mysql import snapshot_rollback
 from wp import running_site_fixture
 
@@ -29,14 +28,12 @@ if TYPE_CHECKING:
 	from behave.runner import FeatureContext
 	from behave.runner import ScenarioContext
 
-SITE_URL = URL("http://test.example.com")
-
 
 def before_all(context: Context) -> None:
 	"""
 	Prepare fixtures for all tests
 	"""
-	use_fixture(running_site_fixture, context, site_url=SITE_URL)
+	use_fixture(running_site_fixture, context)
 
 
 def before_feature(context: FeatureContext, feature: Feature) -> None:

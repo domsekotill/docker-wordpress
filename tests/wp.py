@@ -31,6 +31,7 @@ from behave_utils.mysql import Mysql
 
 BUILD_CONTEXT = Path(__file__).parent.parent
 DEFAULT_URL = URL("http://test.example.com")
+CURRENT_SITE = URL("current://")
 
 
 class Wordpress(Container):
@@ -177,31 +178,42 @@ class Site:
 
 
 @fixture
-def site_fixture(context: Context, /, site_url: URL|None = None) -> Iterator[Site]:
+def site_fixture(context: Context, /, url: URL = CURRENT_SITE) -> Iterator[Site]:
 	"""
 	Return a currently in-scope Site instance when used with `use_fixture`
 
-	If "site_url" is provided and it doesn't match a current Site instance, a new instance
+	If "url" is provided and it doesn't match a current Site instance, a new instance
 	will be created in the current context.
 
 	>>> use_fixture(site_fixture, context)
 	<<< <wp.Site at [...]>
 	"""
-	if hasattr(context, "site"):
-		assert isinstance(context.site, Site)
-		if site_url is None or context.site.url == site_url:
-			yield context.site
-			return
-	with Site.build(site_url or DEFAULT_URL) as context.site:
-		yield context.site
+	if not hasattr(context, "sites"):
+		context.sites = dict[URL, Site]()
+	assert len(context.sites) == 0 or \
+		len(context.sites) >= 2 and CURRENT_SITE in context.sites, \
+		f'Both ["url" or DEFAULT_URL] and [CURRENT_SITE] must be added to sites: ' \
+		f'{context.sites!r}'
+	if url in context.sites:
+		yield context.sites[url]
+		return
+	url = DEFAULT_URL if url == CURRENT_SITE else url
+	prev = context.sites.get(CURRENT_SITE)
+	with Site.build(url) as context.sites[url]:
+		context.sites[CURRENT_SITE] = context.sites[url]
+		yield context.sites[url]
+	del context.sites[url]
+	del context.sites[CURRENT_SITE]
+	if prev:
+		context.sites[CURRENT_SITE] = prev
 
 
 @fixture
-def running_site_fixture(context: Context, /, site_url: URL|None = None) -> Iterator[Site]:
+def running_site_fixture(context: Context, /, url: URL = CURRENT_SITE) -> Iterator[Site]:
 	"""
 	Return a currently in-scope Site instance that is running when used with `use_fixture`
 
 	Like `site_fixture` but additionally entered into the `Site.running` context manager.
 	"""
-	with use_fixture(site_fixture, context, site_url=site_url).running() as site:
+	with use_fixture(site_fixture, context, url=url).running() as site:
 		yield site
