@@ -1,4 +1,4 @@
-#  Copyright 2021-2022  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2021-2023  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -75,6 +75,9 @@ class Wordpress(Container):
 
 	@contextmanager
 	def started(self: T) -> Iterator[T]:
+		"""
+		Return a context in which the container is guaranteed to be started and running
+		"""
 		with self:
 			self.start()
 			cmd = ["bash", "-c", "[[ /proc/1/exe -ef `which php-fpm` ]]"]
@@ -127,6 +130,9 @@ class Site:
 	@classmethod
 	@contextmanager
 	def build(cls: type[T], site_url: URL) -> Iterator[T]:
+		"""
+		Return a context that constructs a ready-to-go instance on entry
+		"""
 		test_dir = Path(__file__).parent
 		db_init = test_dir / "mysql-init.sql"
 
@@ -140,7 +146,7 @@ class Site:
 	@contextmanager
 	def running(self: T) -> Iterator[T]:
 		"""
-		Start all the services and configure the network
+		Return a context in which all containers are guaranteed to be started and running
 		"""
 		if self._running:
 			yield self
@@ -155,6 +161,9 @@ class Site:
 
 	@property
 	def address(self) -> IPv4Address:
+		"""
+		Return an IPv4 address through which test code can access the site
+		"""
 		if self._address is None:
 			if not self.frontend.is_running():
 				raise RuntimeError(
