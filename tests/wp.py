@@ -13,9 +13,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING
 from typing import Iterator
-from typing import TypeVar
 
 from behave import fixture
 from behave import use_fixture
@@ -28,6 +26,7 @@ from behave_utils.docker import Image
 from behave_utils.docker import IPv4Address
 from behave_utils.docker import Network
 from behave_utils.mysql import Mysql
+from typing_extensions import Self
 
 BUILD_CONTEXT = Path(__file__).parent.parent
 DEFAULT_URL = URL("http://test.example.com")
@@ -40,9 +39,6 @@ class Wordpress(Container):
 	"""
 
 	DEFAULT_ALIASES = ("upstream",)
-
-	if TYPE_CHECKING:
-		T = TypeVar("T", bound="Wordpress")
 
 	def __init__(self, site_url: URL, database: Mysql, network: Network|None = None):
 		Container.__init__(
@@ -75,7 +71,7 @@ class Wordpress(Container):
 		return Cli(self, "wp")
 
 	@contextmanager
-	def started(self: T) -> Iterator[T]:
+	def started(self) -> Iterator[Self]:
 		"""
 		Return a context in which the container is guaranteed to be started and running
 		"""
@@ -109,9 +105,6 @@ class Site:
 	Manage all the containers of a site fixture
 	"""
 
-	if TYPE_CHECKING:
-		T = TypeVar("T", bound="Site")
-
 	def __init__(
 		self,
 		url: URL,
@@ -130,7 +123,7 @@ class Site:
 
 	@classmethod
 	@contextmanager
-	def build(cls: type[T], site_url: URL) -> Iterator[T]:
+	def build(cls, site_url: URL) -> Iterator[Self]:
 		"""
 		Return a context that constructs a ready-to-go instance on entry
 		"""
@@ -145,7 +138,7 @@ class Site:
 					yield cls(site_url, network, frontend, backend, database)
 
 	@contextmanager
-	def running(self: T) -> Iterator[T]:
+	def running(self) -> Iterator[Self]:
 		"""
 		Return a context in which all containers are guaranteed to be started and running
 		"""
