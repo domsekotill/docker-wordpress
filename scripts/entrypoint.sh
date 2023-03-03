@@ -209,9 +209,10 @@ setup_sandbox()
 	wp config set FS_METHOD direct
 	wp config set WP_CONTENT_DIR /app/static/wp-content
 	wp config set WPMU_PLUGIN_DIR /app/wp-content/mu-plugins
+	rm -r static/wp/wp-content
+	ln -s ../wp-content static/wp/wp-content
 	rsync \
 		--archive \
-		--delete-delay \
 		--exclude=/wp-content/mu-plugins/ \
 		wp-content static/
 	mkdir -p \
@@ -246,7 +247,7 @@ collect_static()
 		--recursive \
 		--relative \
 		--times \
-		. static/
+		. static/wp/
 }
 
 generate_static()
