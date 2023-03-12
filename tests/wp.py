@@ -25,6 +25,7 @@ from behave_utils.docker import Container as Container
 from behave_utils.docker import Image
 from behave_utils.docker import IPv4Address
 from behave_utils.docker import Network
+from behave_utils.docker import inspect
 from behave_utils.mysql import Mysql
 from typing_extensions import Self
 
@@ -78,7 +79,7 @@ class Wordpress(Container):
 		with self:
 			self.start()
 			cmd = ["bash", "-c", "[[ /proc/1/exe -ef `which php-fpm` ]]"]
-			wait(lambda: self.is_running() and self.run(cmd).returncode == 0, timeout=600)
+			wait(lambda: self.run(cmd).returncode == 0, timeout=600)
 			yield self
 
 
@@ -127,15 +128,13 @@ class Site:
 		"""
 		Return a context that constructs a ready-to-go instance on entry
 		"""
-		test_dir = Path(__file__).parent
-		db_init = test_dir / "mysql-init.sql"
-
-		with Network() as network, Mysql(network=network, init_files=[db_init]) as database:
-			database.start()  # Get a head start on initialising the database
-			with \
-				Wordpress(site_url, database, network=network) as backend, \
-				Nginx(backend, network=network) as frontend:
-					yield cls(site_url, network, frontend, backend, database)
+		with (
+			Network() as network,
+			Mysql(network=network) as database,
+			Wordpress(site_url, database, network=network) as backend,
+			Nginx(backend, network=network) as frontend,
+		):
+			yield cls(site_url, network, frontend, backend, database)
 
 	@contextmanager
 	def running(self) -> Iterator[Self]:
@@ -146,7 +145,7 @@ class Site:
 			yield self
 			return
 		self._running = True
-		with self.database.started(), self.backend.started(), self.frontend.started():
+		with self.backend.started(), self.frontend.started():
 			try:
 				yield self
 			finally:
@@ -163,7 +162,7 @@ class Site:
 				raise RuntimeError(
 					"Site.address may only be accessed inside a Site.running() context",
 				)
-			self._address = self.frontend.inspect().path(
+			self._address = inspect(self.frontend).path(
 				f"$.NetworkSettings.Networks.{self.network}.IPAddress",
 				str, IPv4Address,
 			)

@@ -1,6 +1,6 @@
 Python ~=3.9; python_version < '3.9'
 
 behave
-behave-utils ~=0.3.2
+behave-utils ~=0.4.0
 requests ~=2.26
 typing-extensions ~=4.0

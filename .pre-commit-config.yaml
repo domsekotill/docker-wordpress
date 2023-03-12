@@ -93,4 +93,4 @@ repos:
     args: ["--python-version=3.9"]
     additional_dependencies:
     - types-requests
-    - behave-utils ~=0.3.3
+    - behave-utils ~=0.4.1
