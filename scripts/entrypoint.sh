@@ -82,6 +82,9 @@ create_config()
 }
 
 setup_database() {
+	local domain=${SITE_URL#*://}
+	domain=${domain%%[:/]*}
+
 	local admin_name=${SITE_ADMIN:-admin}
 	local admin_email=${SITE_ADMIN_EMAIL:-admin@$domain}
 	local admin_password=${SITE_ADMIN_PASSWORD-}
@@ -90,9 +93,6 @@ setup_database() {
 	unset ${!SITE_ADMIN*}
 
 	wp core is-installed && return
-
-	local domain=${SITE_URL#*://}
-	domain=${domain%%[:/]*}
 
 	wp core install \
 		--url="${SITE_URL%/}" \
