@@ -55,7 +55,6 @@ class Wordpress(Container):
 			],
 			env=dict(
 				SITE_URL=site_url,
-				SITE_ADMIN_EMAIL="test@kodo.org.uk",
 				DB_NAME=database.name,
 				DB_USER=database.user,
 				DB_PASS=database.password,

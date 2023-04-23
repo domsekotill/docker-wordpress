@@ -41,6 +41,7 @@ repos:
   - id: check-for-squash
   - id: copyright-notice
     exclude: ^data/|^scripts/(compile-|install-)
+    args: [--min-size=1000]
   - id: protect-first-parent
 
 - repo: https://github.com/pre-commit/pygrep-hooks

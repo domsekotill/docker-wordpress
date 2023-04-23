@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Collection
+from textwrap import dedent
 from typing import Any
 from typing import Iterator
 from typing import TypeVar
@@ -179,3 +180,15 @@ def assert_is_json(context: Context) -> None:
 		context.response.json()
 	except json.JSONDecodeError:
 		raise AssertionError("Response is not a JSON document")
+
+
+@then("the response body contains")
+def assert_body_contains(context: Context) -> None:
+	"""
+	Assert the response body of a previous step contains the text attached to the step
+	"""
+	if context.text is None:
+		raise ValueError("this step needs text to check")
+	text = dedent(context.text).encode("utf-8")
+	assert text in context.response.content, \
+		f"text not found in {context.response.content[:100]}"
