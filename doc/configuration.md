@@ -55,6 +55,10 @@ options are optional plain text files listing additional entries (one per
 line) to append to the [**PLUGINS**](#plugins), [**THEMES**](#themes) and 
 [**LANGUAGES**](#languages) option arrays respectively.
 
+> **Note:** Every line in these files MUST be correctly terminated in the Unix 
+> style (with a line-feed character). Please pay special attention to the final 
+> line as some text editors do not correctly terminate them.
+
 
 Options
 -------
@@ -115,7 +119,7 @@ the missing language pack will be silently ignored.
 **Required**: no\
 **Default**: /etc/wordpress/languages.txt
 
-The path to a file containing lines to append to 
+The path to a plain text file containing lines to append to 
 [**LANGUAGES**](#languages).
 
 ### PLUGINS
@@ -133,7 +137,8 @@ be the latest stable available in the wordpress.org registry.
 **Required**: no\
 **Default**: /etc/wordpress/plugins.txt
 
-The path to a file containing lines to append to [**PLUGINS**](#plugins).
+The path to a plain text file containing lines to append to 
+[**PLUGINS**](#plugins).
 
 ### PHP_DIRECTIVES
 
@@ -231,7 +236,8 @@ latest stable available in the wordpress.org registry.
 **Required**: no\
 **Default**: /etc/wordpress/themes.txt
 
-The path to a file containing lines to append to [**THEMES**](#themes).
+The path to a plain text file containing lines to append to 
+[**THEMES**](#themes).
 
 ### WP_CONFIGS
 
