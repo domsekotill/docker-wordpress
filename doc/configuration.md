@@ -39,10 +39,14 @@ to the container, however:
 
 - Unlike the way most configuration systems treat environment variables, 
   they do not overwrite options provided in the configuration files unless 
-  the files are specifically written to honour the environment variables.
+  the files are specifically written to honour the environment variables, 
+  for instance by using the "+=" operator to append to arrays.
 
-- For array options the value provided in the environment variable will 
-  become the first item (index 0).
+- For array options the value provided will be split on whitespace. 
+  Unfortunately at the moment there is no way to escape or quote whitespace 
+  within items.  If you find yourself needing to add items with whitespace, 
+  consider using configuration files instead, which are interpreted with 
+  Bash, or one of the [convenience files](#convenience-files).
 
 
 Convenience Files
