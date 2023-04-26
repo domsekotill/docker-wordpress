@@ -276,6 +276,18 @@ run_background_cron()
 	exec -a wp-cron /bin/bash <<<run_cron
 )& }
 
+readlines()
+{
+	declare -n ARRAY=$1
+	while IFS=$'\r\n' read line; do
+		ARRAY+=( "$line" )
+	done
+	if [[ "$line" ]]; then
+		echo >&2 "WARNING: unterminated line in" `readlink /proc/self/fd/0`
+		ARRAY+=( "$line" )
+	fi
+}
+
 
 mkdir -p ${CONFIG_DIR}
 cd ${CONFIG_DIR}
@@ -284,13 +296,13 @@ for file in **/*.conf; do
 done
 
 if [[ -e ${PLUGINS_LIST:=${CONFIG_DIR}/plugins.txt} ]]; then
-	PLUGINS+=( $(<"${PLUGINS_LIST}") )
+	readlines PLUGINS <"${PLUGINS_LIST}"
 fi
 if [[ -e ${THEMES_LIST:=${CONFIG_DIR}/themes.txt} ]]; then
-	THEMES+=( $(<"${THEMES_LIST}") )
+	readlines THEMES <"${THEMES_LIST}"
 fi
 if [[ -e ${LANGUAGES_LIST:=${CONFIG_DIR}/languages.txt} ]]; then
-	LANGUAGES+=( $(<"${LANGUAGES_LIST}") )
+	readlines LANGUAGES <"${LANGUAGES_LIST}"
 fi
 
 declare -a extra_args
