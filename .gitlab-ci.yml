@@ -38,9 +38,9 @@ Build Images:
     - scripts/*
   variables:
     BUILD_ARGS: >-
-      wp_version=$WORDPRESS_VERSION
-      php_version=$PHP_VERSION
-      nginx_version=$NGINX_VERSION
+      WORDPRESS+VERSION:wp_version
+      PHP_VERSION:php_version
+      NGINX_VERSION:nginx_version
   parallel:
     matrix:
     - TARGET: [nginx, fastcgi]
