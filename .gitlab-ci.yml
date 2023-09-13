@@ -38,7 +38,7 @@ Build Images:
     - scripts/*
   variables:
     BUILD_ARGS: >-
-      WORDPRESS+VERSION:wp_version
+      WORDPRESS_VERSION:wp_version
       PHP_VERSION:php_version
       NGINX_VERSION:nginx_version
   parallel:
