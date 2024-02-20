@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2019-2021 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+ * Copyright 2019-2021, 2024 Dominik Sekotill <dom.sekotill@kodo.org.uk>
  *
  * Plugin Name: Docker Image Integration
  * Plugin URI: https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/tree/master/plugins
@@ -10,25 +10,6 @@
  * Author: Dominik Sekotill
  * Author URI: https://code.kodo.org.uk/dom
  */
-
-
-// Media URL Fix
-
-add_action( 'plugins_loaded', function() {
-	add_filter( 'upload_dir', function( $paths ) {
-		$baseurl = parse_url( $paths['baseurl'] );
-		$fullurl = parse_url( $paths['url'] );
-		$subdir = $paths['subdir'];
-
-		$baseurl['path'] = '/media';
-		$fullurl['path'] = '/media' . ($subdir ? "/{$subdir}" : '');
-
-		$paths['baseurl'] = unparse_url( $baseurl );
-		$paths['url']     = unparse_url( $fullurl );
-
-		return $paths;
-	});
-});
 
 
 // Block File Modification
@@ -84,12 +65,41 @@ add_filter(
 		$params['disable_host_prefix_injection'] = true;
 		$params['use_path_style_endpoint'] = true;
 		$params['debug'] = WP_DEBUG && WP_DEBUG_DISPLAY;
-		$params['region'] = '';
 		return $params;
 	}
 );
 
 endif;
+
+
+// Media URL Fix
+
+add_action( 'plugins_loaded', function() {
+		add_filter( 'upload_dir', function( array $paths ) : array {
+			$baseurl = parse_url( $paths['baseurl'] );
+			$fullurl = parse_url( $paths['url'] );
+			$subdir = $paths['subdir'] ?? '';
+
+			if ( defined( 'S3_UPLOADS_ENDPOINT_URL' ) ) {
+				$s3 = S3_Uploads\Plugin::get_instance();
+
+				$basedir = str_replace( $paths['basedir'], $s3->get_s3_path(), $paths['basedir'] );
+				$paths['basedir'] = $basedir;
+				$paths['path'] = "{$basedir}{$subdir}";
+
+				$baseurl = parse_url( $s3->get_s3_url() );
+				$fullurl = $baseurl;
+				$fullurl['path'] = ($fullurl['path'] ?? '') . $subdir;
+			} else {
+				$baseurl['path'] = '/media';
+				$fullurl['path'] = '/media' . $subdir;
+			}
+
+			$paths['baseurl'] = unparse_url( $baseurl );
+			$paths['url']     = unparse_url( $fullurl );
+			return $paths;
+		});
+});
 
 
 // Functions

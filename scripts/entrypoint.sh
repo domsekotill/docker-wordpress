@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2019-2023 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+# Copyright 2019-2024 Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -118,9 +118,6 @@ setup_s3() {
 	[[ -v S3_ENDPOINT_SECRET ]] ||
 		return 0
 
-	composer update --prefer-dist --no-dev --with-dependencies \
-		humanmade/s3-uploads
-
 	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
 		wp config set S3_UPLOADS_USE_LOCAL true --raw
 
@@ -135,7 +132,7 @@ setup_s3() {
 	wp config set S3_UPLOADS_SECRET ${S3_ENDPOINT_SECRET} --quiet
 
 	# Plugin requires something here, it's not used
-	wp config set S3_UPLOADS_REGION ''
+	wp config set S3_UPLOADS_REGION 'eu-west-1'
 
 	# Due to what appears to be a bug in the plugin, this MUST be a non-empty
 	# string; mostly it just affects the log output
