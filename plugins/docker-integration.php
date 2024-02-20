@@ -54,13 +54,13 @@ add_filter(
 
 // S3-Uploads Integration
 
-if ( defined( 'S3_UPLOADS_ENDPOINT_URL' ) || defined( 'WP_CLI' ) ):
+if ( defined( 'S3_MEDIA_ENDPOINT' ) || defined( 'WP_CLI' ) ):
 
 add_filter(
 	's3_uploads_s3_client_params',
 
 	function ( $params ) {
-		$params['endpoint'] = S3_UPLOADS_ENDPOINT_URL;
+		$params['endpoint'] = S3_MEDIA_ENDPOINT;
 		$params['bucket_endpoint'] = true;
 		$params['disable_host_prefix_injection'] = true;
 		$params['use_path_style_endpoint'] = true;
@@ -80,7 +80,7 @@ add_action( 'plugins_loaded', function() {
 			$fullurl = parse_url( $paths['url'] );
 			$subdir = $paths['subdir'] ?? '';
 
-			if ( defined( 'S3_UPLOADS_ENDPOINT_URL' ) ) {
+			if ( defined( 'S3_MEDIA_ENDPOINT' ) ) {
 				$s3 = S3_Uploads\Plugin::get_instance();
 
 				$basedir = str_replace( $paths['basedir'], $s3->get_s3_path(), $paths['basedir'] );

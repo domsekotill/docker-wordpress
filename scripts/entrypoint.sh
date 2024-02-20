@@ -112,27 +112,21 @@ setup_database() {
 setup_s3() {
 	# https://github.com/humanmade/S3-Uploads
 
-	[[ -v S3_UPLOADS_ENDPOINT_URL ]] &&
-	[[ -v S3_ENDPOINT_KEY ]] &&
-	[[ -v S3_ENDPOINT_SECRET ]] ||
+	[[ -v S3_MEDIA_ENDPOINT ]] &&
+	[[ -v S3_MEDIA_KEY ]] &&
+	[[ -v S3_MEDIA_SECRET ]] ||
 		return 0
 
-	if [[ -v S3_UPLOADS_REWRITE_URL ]]; then
-		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_REWRITE_URL}"
-	else
-		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_ENDPOINT_URL}"
-	fi
+	wp config set S3_UPLOADS_BUCKET_URL "${S3_MEDIA_REWRITE_URL-$S3_MEDIA_ENDPOINT}"
 
-	wp config set S3_UPLOADS_ENDPOINT_URL "${S3_UPLOADS_ENDPOINT_URL}"
-	wp config set S3_UPLOADS_KEY ${S3_ENDPOINT_KEY}
-	wp config set S3_UPLOADS_SECRET ${S3_ENDPOINT_SECRET} --quiet
+	wp config set S3_MEDIA_ENDPOINT "${S3_MEDIA_ENDPOINT}"
+	wp config set S3_UPLOADS_KEY "${S3_MEDIA_KEY}"
+	wp config set S3_UPLOADS_SECRET "${S3_MEDIA_SECRET}" --quiet
 
 	# Plugin requires something here, it's not used
 	wp config set S3_UPLOADS_REGION 'eu-west-1'
 
-	# Due to what appears to be a bug in the plugin, this MUST be a non-empty
-	# string; mostly it just affects the log output
-	wp config set S3_UPLOADS_BUCKET "CONFIGURED-BUCKET"
+	wp config set S3_UPLOADS_BUCKET "media-bucket"
 
 	# If there is anything in ./media, upload it
 	local contents=( media/* )
@@ -140,7 +134,7 @@ setup_s3() {
 		wp s3-uploads upload-directory media
 
 	# Clear potentialy sensitive information from environment lest it leaks
-	unset ${!S3_ENDPOINT_*}
+	unset ${!S3_MEDIA_*}
 }
 
 setup_components() {
