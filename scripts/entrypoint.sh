@@ -110,9 +110,6 @@ setup_database() {
 setup_s3() {
 	# https://github.com/humanmade/S3-Uploads
 
-	declare -a configs=( "${!S3_ENDPOINT_@}" )
-	[[ ${#configs[*]} -gt 0 ]] || return 0
-
 	[[ -v S3_UPLOADS_ENDPOINT_URL ]] &&
 	[[ -v S3_ENDPOINT_KEY ]] &&
 	[[ -v S3_ENDPOINT_SECRET ]] ||
