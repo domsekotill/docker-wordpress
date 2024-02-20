@@ -117,9 +117,6 @@ setup_s3() {
 	[[ -v S3_ENDPOINT_SECRET ]] ||
 		return 0
 
-	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
-		wp config set S3_UPLOADS_USE_LOCAL true --raw
-
 	if [[ -v S3_UPLOADS_REWRITE_URL ]]; then
 		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_REWRITE_URL}"
 	else
