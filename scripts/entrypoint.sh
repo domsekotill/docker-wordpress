@@ -79,6 +79,8 @@ create_config()
 
 	wp config set WP_SITEURL "${site_url%/}"
 	wp config set WP_HOME "${home_url%/}"
+
+	wp config set WP_DEBUG_LOG /dev/stdout;
 }
 
 setup_database() {
