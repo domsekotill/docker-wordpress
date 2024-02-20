@@ -1,4 +1,4 @@
-#  Copyright 2021-2022  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2021-2023  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,13 +11,23 @@ Step implementations dealing with HTTP requests
 from __future__ import annotations
 
 import json
+from collections.abc import Collection
 from typing import Any
+from typing import TypeVar
 
 from behave import then
 from behave import when
 from behave.runner import Context
 from behave_utils import URL
 from behave_utils import PatternEnum
+
+T = TypeVar("T")
+
+try:
+	from enum import nonmember  # type: ignore[attr-defined]
+except ImportError:
+	def nonmember(obj: T) -> T:  # noqa: D103
+		return obj
 
 SAMPLE_SITE_NAME = "http://test.example.com"
 
@@ -48,14 +58,14 @@ class ResponseCode(int, PatternEnum):
 	method_not_allowed = 405
 
 	# Aliases for the above codes, for mapping natural language in feature files to enums
-	ALIASES = {
+	ALIASES = nonmember({
 		"OK": 200,
 		"Not Found": 404,
 		"Method Not Allowed": 405,
-	}
+	})
 
 	@staticmethod
-	def member_filter(attr: dict[str, Any], member_names: list[str]) -> None:
+	def member_filter(attr: dict[str, Any], member_names: Collection[str]) -> None:
 		"""
 		Add natural language aliases and stringified code values to members
 
@@ -69,8 +79,11 @@ class ResponseCode(int, PatternEnum):
 			if isinstance(value, int)
 		}
 		additional.update(attr["ALIASES"])
-		member_names.remove("ALIASES")
-		member_names.extend(additional)
+		if isinstance(member_names, list):
+			member_names.remove("ALIASES")
+			member_names.extend(additional)
+		else:
+			assert "ALIASES" not in member_names
 		attr.update(additional)
 
 

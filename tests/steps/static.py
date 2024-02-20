@@ -1,4 +1,4 @@
-#  Copyright 2022  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2022-2023  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -34,6 +34,6 @@ def container_file(context: Context, path: str, container_name: str) -> Iterator
 	"""
 	container = getattr(context.site, container_name)
 	run = Cli(container)
-	run("tee", path, input=getattr(context, "text", "This is a data file!"))
+	run("tee", path, input=(context.text or "This is a data file!"))
 	yield
 	run("rm", path)

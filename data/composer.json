@@ -1,14 +1,8 @@
 {
 	"type": "project",
 	"license": "MPL-2.0",
-	"repositories": [
-		{
-			"type": "gitlab",
-			"url": "https://code.kodo.org.uk/singing-chimes.co.uk/s3-uploads"
-		}
-	],
 	"require": {
-		"humanmade/s3-uploads": "dev-develop",
+		"humanmade/s3-uploads": "3.0.7",
 		"ayesh/wordpress-password-hash": "2.*"
 	},
 	"config": {

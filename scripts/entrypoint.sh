@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2019-2023 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+# Copyright 2019-2024 Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -79,9 +79,14 @@ create_config()
 
 	wp config set WP_SITEURL "${site_url%/}"
 	wp config set WP_HOME "${home_url%/}"
+
+	wp config set WP_DEBUG_LOG /dev/stdout;
 }
 
 setup_database() {
+	local domain=${SITE_URL#*://}
+	domain=${domain%%[:/]*}
+
 	local admin_name=${SITE_ADMIN:-admin}
 	local admin_email=${SITE_ADMIN_EMAIL:-admin@$domain}
 	local admin_password=${SITE_ADMIN_PASSWORD-}
@@ -90,9 +95,6 @@ setup_database() {
 	unset ${!SITE_ADMIN*}
 
 	wp core is-installed && return
-
-	local domain=${SITE_URL#*://}
-	domain=${domain%%[:/]*}
 
 	wp core install \
 		--url="${SITE_URL%/}" \
@@ -110,36 +112,21 @@ setup_database() {
 setup_s3() {
 	# https://github.com/humanmade/S3-Uploads
 
-	declare -a configs=( "${!S3_ENDPOINT_@}" )
-	[[ ${#configs[*]} -gt 0 ]] || return 0
-
-	[[ -v S3_UPLOADS_ENDPOINT_URL ]] &&
-	[[ -v S3_ENDPOINT_KEY ]] &&
-	[[ -v S3_ENDPOINT_SECRET ]] ||
+	[[ -v S3_MEDIA_ENDPOINT ]] &&
+	[[ -v S3_MEDIA_KEY ]] &&
+	[[ -v S3_MEDIA_SECRET ]] ||
 		return 0
 
-	composer update --prefer-dist --no-dev --with-dependencies \
-		humanmade/s3-uploads
+	wp config set S3_UPLOADS_BUCKET_URL "${S3_MEDIA_REWRITE_URL-$S3_MEDIA_ENDPOINT}"
 
-	[[ -v S3_UPLOADS_USE_LOCAL ]] &&
-		wp config set S3_UPLOADS_USE_LOCAL true --raw
-
-	if [[ -v S3_UPLOADS_REWRITE_URL ]]; then
-		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_REWRITE_URL}"
-	else
-		wp config set S3_UPLOADS_BUCKET_URL "${S3_UPLOADS_ENDPOINT_URL}"
-	fi
-
-	wp config set S3_UPLOADS_ENDPOINT_URL "${S3_UPLOADS_ENDPOINT_URL}"
-	wp config set S3_UPLOADS_KEY ${S3_ENDPOINT_KEY}
-	wp config set S3_UPLOADS_SECRET ${S3_ENDPOINT_SECRET} --quiet
+	wp config set S3_MEDIA_ENDPOINT "${S3_MEDIA_ENDPOINT}"
+	wp config set S3_UPLOADS_KEY "${S3_MEDIA_KEY}"
+	wp config set S3_UPLOADS_SECRET "${S3_MEDIA_SECRET}" --quiet
 
 	# Plugin requires something here, it's not used
-	wp config set S3_UPLOADS_REGION ''
+	wp config set S3_UPLOADS_REGION 'eu-west-1'
 
-	# Due to what appears to be a bug in the plugin, this MUST be a non-empty
-	# string; mostly it just affects the log output
-	wp config set S3_UPLOADS_BUCKET "CONFIGURED-BUCKET"
+	wp config set S3_UPLOADS_BUCKET "media-bucket"
 
 	# If there is anything in ./media, upload it
 	local contents=( media/* )
@@ -147,7 +134,7 @@ setup_s3() {
 		wp s3-uploads upload-directory media
 
 	# Clear potentialy sensitive information from environment lest it leaks
-	unset ${!S3_ENDPOINT_*}
+	unset ${!S3_MEDIA_*}
 }
 
 setup_components() {
