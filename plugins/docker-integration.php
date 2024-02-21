@@ -68,7 +68,7 @@ add_filter(
 		$params['bucket_endpoint'] = true;
 		$params['disable_host_prefix_injection'] = true;
 		$params['use_path_style_endpoint'] = true;
-		$params['debug'] = WP_DEBUG && WP_DEBUG_DISPLAY;
+		$params['debug'] = S3_DEBUG;
 		return $params;
 	}
 );

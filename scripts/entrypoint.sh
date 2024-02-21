@@ -79,8 +79,6 @@ create_config()
 
 	wp config set WP_SITEURL "${site_url%/}"
 	wp config set WP_HOME "${home_url%/}"
-
-	wp config set WP_DEBUG_LOG /dev/stdout;
 }
 
 setup_database() {
@@ -212,6 +210,29 @@ setup_sandbox()
 		static/wp-content/upgrade
 }
 
+setup_debug()
+{
+	[[ -v DEBUG ]] || return
+
+	local IFS=', ' feature
+	local enable=true display=false script=false s3=false
+
+	for feature in ${DEBUG:-true}; do
+		case $feature in
+			false|n|no|off) enable=false ;;
+			all) script=true display=true s3=true ;;
+			display) display=true ;;
+			script) script=true ;;
+			s3) s3=true ;;
+		esac
+	done
+
+	wp config set WP_DEBUG $enable --raw
+	wp config set WP_DEBUG_DISPLAY $display --raw
+	wp config set SCRIPT_DEBUG $script --raw
+	wp config set S3_DEBUG $s3 --raw
+}
+
 collect_static()
 {
 	get_media_dir
@@ -317,6 +338,7 @@ case "$1" in
 		timestamp "Starting Wordpress preparation"
 		create_config
 		setup_components
+		setup_debug
 		setup_media
 		collect_static
 		generate_static

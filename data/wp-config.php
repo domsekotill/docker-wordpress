@@ -24,6 +24,11 @@ define('UPLOADS', 'media');
 define('CONCATENATE_SCRIPTS', false);
 
 /**
+ * Log all errors, warnings and info log lines to STDOUT
+ */
+define('WP_DEBUG_LOG', '/dev/stdout');
+
+/**
  * Stop the site-health tool from complaining about unwritable filesystems.
  * Background upgrades are performed by a user with write privileges via the
  * wp-cli tool.

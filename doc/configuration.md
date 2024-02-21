@@ -90,6 +90,38 @@ database.
 
 The hostname of the MySQL server providing the database.
 
+### DEBUG
+
+**Type**: string\
+**Format**: comma or space separated list\
+**Required**: no\
+**Example**: "display,script"
+
+If set (even if empty, unless it contains the value `false`) the Wordpress option 
+[`WP_DEBUG`][wp_debug] is enabled which will cause error, warning and notice messages to be 
+printed to the container output.
+
+The value can contain any of the following, separated by commas or spaces (other values will 
+cause an error):
+
+| Value                           | Effect                                                 |
+| -----                           | ------                                                 |
+| `true` \| `yes` \| `y` \| `on`  | Default if `DEBUG` is set                              |
+| `false` \| `no` \| `n` \| `off` | Disables default behaviour, can be combined with others|
+| `all`                           | Shorthand for `"display,script,s3"`                    |
+| `display`                       | Enables displaying messages in output (not recommended)|
+| `script`                        | Enables [`SCRIPT_DEBUG`][script_debug]                 |
+| `s3`                            | Enables debug on S3 transfers (may cause memory issues)|
+
+> **Note:**  `false` can be combined with `script` or `s3` to enable the latter features 
+> without [`WP_DEBUG`][wp_debug].
+
+[wp_debug]:
+  https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/#wp_debug
+
+[script_debug]:
+  https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/#script_debug
+
 ### HOME_URL
 
 **Type**: string\
