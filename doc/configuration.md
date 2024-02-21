@@ -152,7 +152,7 @@ An array of "key=value" strings declaring [PHP directives][].
 **Type**: string\
 **Required**: if using S3 for uploaded media\
 **Format**: URL\
-**Example**: "https://s3.example.com/bucket/path"\
+**Example**: "https://s3.example.com/bucket/path"
 
 A URL to an S3 or S3-like API, including any region and bucket names, and any path in the 
 bucket to append.
@@ -160,7 +160,7 @@ bucket to append.
 ### S3_MEDIA_KEY
 
 **Type**: string\
-**Required**: if using S3 for uploaded media\
+**Required**: if using S3 for uploaded media
 
 An access key allowing write access to the S3 endpoint given by 
 [**S3_MEDIA_ENDPOINT**](#s3_media_endpoint).
@@ -168,7 +168,7 @@ An access key allowing write access to the S3 endpoint given by
 ### S3_MEDIA_SECRET
 
 **Type**: string\
-**Required**: if using S3 for uploaded media\
+**Required**: if using S3 for uploaded media
 
 The secret paired with the access key given in [**S3_MEDIA_KEY**](#s3_media_key).
 
@@ -177,7 +177,7 @@ The secret paired with the access key given in [**S3_MEDIA_KEY**](#s3_media_key)
 **Type**: string\
 **Required**: no\
 **Format**: URL\
-**Example**: "https://my.domain.example.org/"\
+**Example**: "https://my.domain.example.org/"
 
 A base URL for viewers to access uploaded media.  This allows caching proxies, such as CDNs, 
 to be used for accessing files.
@@ -185,7 +185,7 @@ to be used for accessing files.
 ### SANDBOX_MODE
 
 **Type**: flag\
-**Required**: no\
+**Required**: no
 
 If set, [sandbox mode](sandbox-mode.md) is enabled.
 
