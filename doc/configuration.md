@@ -182,6 +182,15 @@ The secret paired with the access key given in [**S3_MEDIA_KEY**](#s3_media_key)
 A base URL for viewers to access uploaded media.  This allows caching proxies, such as CDNs, 
 to be used for accessing files.
 
+### SANDBOX_MODE
+
+**Type**: flag\
+**Required**: no\
+
+If set, [sandbox mode](sandbox-mode.md) is enabled.
+
+**Do not set on production sites**
+
 ### SITE_ADMIN
 
 **Type**: string\

@@ -189,6 +189,29 @@ setup_media()
 	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}"
 }
 
+setup_sandbox()
+{
+	[[ -v SANDBOX_MODE ]] || return 0
+	wp config set SANDBOX_MODE true --raw
+	wp config set FS_METHOD direct
+	wp config set WP_CONTENT_DIR /app/static/wp-content
+	wp config set WPMU_PLUGIN_DIR /app/wp-content/mu-plugins
+	rm -r static/wp/wp-content
+	ln -s ../wp-content static/wp/wp-content
+	rsync \
+		--archive \
+		--exclude=/wp-content/mu-plugins/ \
+		wp-content static/
+	mkdir -p \
+		static/wp-content/plugins \
+		static/wp-content/upgrade
+	chown -R www-data:www-data \
+		static/wp-content/languages \
+		static/wp-content/plugins \
+		static/wp-content/themes \
+		static/wp-content/upgrade
+}
+
 collect_static()
 {
 	get_media_dir
@@ -211,7 +234,7 @@ collect_static()
 		--recursive \
 		--relative \
 		--times \
-		. static/
+		. static/wp/
 }
 
 generate_static()
@@ -297,6 +320,7 @@ case "$1" in
 		setup_media
 		collect_static
 		generate_static
+		setup_sandbox
 		timestamp "Completed Wordpress preparation"
 		run_background_cron
 		exec "$@" "${extra_args[@]}"

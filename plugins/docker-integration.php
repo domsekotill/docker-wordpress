@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2019-2021, 2024 Dominik Sekotill <dom.sekotill@kodo.org.uk>
+ * Copyright 2019-2021, 2023-2024 Dominik Sekotill <dom.sekotill@kodo.org.uk>
  *
  * Plugin Name: Docker Image Integration
  * Plugin URI: https://code.kodo.org.uk/singing-chimes.co.uk/wordpress/tree/master/plugins
@@ -11,6 +11,8 @@
  * Author URI: https://code.kodo.org.uk/dom
  */
 
+
+if ( !defined( 'SANDBOX_MODE' ) ):
 
 // Block File Modification
 
@@ -50,6 +52,8 @@ add_filter(
 
 	10, 3
 );
+
+endif;
 
 
 // S3-Uploads Integration
