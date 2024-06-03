@@ -212,8 +212,6 @@ setup_sandbox()
 
 setup_debug()
 {
-	[[ -v DEBUG ]] || return
-
 	local IFS=', ' feature
 	local enable=true display=false script=false s3=false
 
