@@ -44,7 +44,6 @@ Build Images:
   parallel:
     matrix:
     - TARGET: [nginx, fastcgi]
-      PLATFORMS: [""]
   trigger:
     include:
     - project: dom/project-templates
