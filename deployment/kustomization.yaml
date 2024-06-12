@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+buildMetadata: [managedByLabel, originAnnotations]
+
+commonLabels:
+  app.kubernetes.io/instance: general
+
+resources:
+- deployment.yaml
+- service.yaml

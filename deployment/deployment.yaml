@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: wordpress
+  labels: &labels
+    app.kubernetes.io/name: wordpress
+    app.kubernetes.io/instance: SITE_URL
+    app.kubernetes.io/version: 6.0.3-0
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: wordpress
+
+spec:
+  minReadySeconds: 10
+  progressDeadlineSeconds: 600
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wordpress
+      app.kubernetes.io/instance: SITE_URL
+
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 30%
+      maxUnavailable: 10%
+
+  template:
+    metadata:
+      name: wordpress
+      labels: *labels
+    spec:
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+
+      imagePullSecrets:
+      - name: docker.kodo.org.uk
+
+      hostAliases:
+      - hostnames: [upstream]
+        ip: 127.0.0.1
+
+      volumes:
+      - name: config
+        configMap:
+          name: wp-config
+      - name: secrets
+        secret:
+          secretName: wp-secrets
+          optional: true
+      - name: static
+        emptyDir: {}
+
+      containers:
+      - name: dynamic
+        image: docker.kodo.org.uk/singing-chimes.co.uk/wordpress/fastcgi:6.5.4
+
+        envFrom:
+        - secretRef:
+            name: wp-secrets-env
+            optional: true
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/wordpress/config
+        - name: secrets
+          mountPath: /etc/wordpress/secrets
+        - name: static
+          mountPath: /app/static
+
+      - name: http
+        image: docker.kodo.org.uk/singing-chimes.co.uk/wordpress/nginx:1.27.0
+
+        volumeMounts:
+        - name: static
+          mountPath: /app/static
+
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /.probe?liveness
+            port: 80
+            scheme: HTTP
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /.probe?readiness
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
