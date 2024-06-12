@@ -1,12 +1,12 @@
 variables:
   WORDPRESS_VERSION:
-    value: 6.0.3
+    value: 6.5.4
     description: WordPress release
   PHP_VERSION:
-    value: 8.1.11
+    value: 8.2.19
     description: PHP release to build into the backend image
   NGINX_VERSION:
-    value: 1.23.2
+    value: 1.27.0
     description: Nginx release for the frontend image
 
 
