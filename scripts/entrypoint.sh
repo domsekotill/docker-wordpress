@@ -179,13 +179,7 @@ get_writable_dirs()
 	)
 	MEDIA=${media:-${content}/uploads}
 	CACHE=${content}/cache
-}
-
-setup_writable()
-{
-	# UID values change on every run, ensure the owner and group are set
-	# correctly on the media directory/volume.
-	get_writable_dirs
+	mkdir -p "${MEDIA}" "${CACHE}"
 	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}" "${CACHE}"
 }
 
@@ -352,7 +346,6 @@ case "$1" in
 		create_config
 		setup_components
 		setup_debug
-		setup_writable
 		collect_static
 		generate_static
 		setup_sandbox
