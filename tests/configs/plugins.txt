@@ -1,1 +1,1 @@
-https://code.kodo.org.uk/api/v4/projects/94/jobs/artifacts/main/raw/wp-test-plugin.zip?job=build
+wp-dummy-content-generator

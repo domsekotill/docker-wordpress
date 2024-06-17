@@ -15,7 +15,7 @@ Feature: Configuration files and environment
 		And plugins.conf is mounted in /etc/wordpress/extras/
 		When the site is started
 		Then the theme sela is active
-		And the plugin wp-test-plugin is installed
+		And the plugin wp-dummy-content-generator is installed
 
 	Scenario: Nested directories of "*config.php" files are found and integrated
 		Given make-spam.php is mounted in /etc/wordpress/ as spam-config.php
@@ -61,7 +61,7 @@ Feature: Configuration files and environment
 	Scenario: A "plugins.txt" file is used as a source of plugins
 		Given plugins.txt is mounted in /etc/wordpress/
 		When the site is started
-		Then the plugin wp-test-plugin is installed
+		Then the plugin wp-dummy-content-generator is installed
 
 	Scenario: A "themes.txt" file is used as a source of plugins
 		Given /etc/wordpress/themes.txt contains:
@@ -88,7 +88,7 @@ Feature: Configuration files and environment
 		And plugins.txt is mounted in /etc/wordpress/ as real-plugins.txt
 		And the environment variable PLUGINS_LIST is "/etc/wordpress/real-plugins.txt"
 		When the site is started
-		Then the plugin wp-test-plugin is installed
+		Then the plugin wp-dummy-content-generator is installed
 
 	Scenario: When THEMES_LIST is provided, it replaces "themes.txt"
 		Given /etc/wordpress/themes.txt contains:
