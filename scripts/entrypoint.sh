@@ -13,7 +13,7 @@ shopt -s nullglob globstar extglob
 enable -f /usr/lib/bash/head head
 enable -f /usr/lib/bash/unlink unlink
 
-declare -r DEFAULT_THEME=twentytwentytwo
+declare -r DEFAULT_THEME=twentytwentyfour
 declare -r WORKER_USER=www-data
 declare -r CONFIG_DIR=/etc/wordpress
 declare -r WORK_DIR=${PWD}
