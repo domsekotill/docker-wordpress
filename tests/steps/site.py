@@ -1,4 +1,4 @@
-#  Copyright 2023  Dominik Sekotill <dom.sekotill@kodo.org.uk>
+#  Copyright 2023-2024  Dominik Sekotill <dom.sekotill@kodo.org.uk>
 #
 #  This Source Code Form is subject to the terms of the Mozilla Public
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,8 +12,10 @@ from __future__ import annotations
 
 from base64 import b32encode as b32
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 
 from behave import fixture
 from behave import given
@@ -84,10 +86,11 @@ def container_file(
 	# This relies on "tee" and "rm" existing in the container image
 	if container.is_running():
 		run = Cli(container)
-		run("tee", path, input=contents)
-		yield
-		run("rm", path)
-		return
+		with _container_dir_cmds(run, path.parent):
+			run("tee", path, input=contents)
+			yield
+			run("rm", path)
+			return
 
 	# For unstarted containers, write to a temporary file and add it to the volumes mapping
 	with NamedTemporaryFile("wb") as temp:
@@ -95,6 +98,42 @@ def container_file(
 		temp.flush()
 		container.volumes.append((Path(temp.name), path))
 		yield
+
+
+@fixture
+def container_dir(
+	context: Context,
+	container: Container,
+	path: Path,
+) -> Iterator[None]:
+	"""
+	Create a directory in a container as a fixture
+	"""
+	if container.is_running():
+		run = Cli(container)
+		if 0 == run("sh", "-c", f"test -d {path}", query=True):
+			yield
+			return
+		with _container_dir_cmds(run, path):
+			yield
+			return
+
+	with TemporaryDirectory() as temp:
+		container.volumes.append((Path(temp), path))
+		yield
+
+
+@contextmanager
+def _container_dir_cmds(cmd_runner: Cli, path: Path) -> Iterator[None]:
+	if 0 == cmd_runner("sh", "-c", f"test -d {path}", query=True):
+		yield
+		return
+	with _container_dir_cmds(cmd_runner, path.parent):
+		cmd_runner("mkdir", path)
+		try:
+			yield
+		finally:
+			cmd_runner("rmdir", path)
 
 
 @given("the site is not running")
