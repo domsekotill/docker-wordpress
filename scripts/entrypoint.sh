@@ -167,24 +167,20 @@ setup_components() {
 	return 0
 }
 
-get_media_dir()
+get_writable_dirs()
 {
-	[[ -v MEDIA ]] && return
-	MEDIA=$(
+	[[ -v MEDIA && -v CACHE ]] && return
+	local content=$(
+		wp config get WP_CONTENT_DIR --type=constant || echo wp-content
+	)
+	local media=$(
 		wp config get UPLOADS --type=constant ||
 		wp option get upload_path
 	)
-	[[ -n "${MEDIA}" ]] && return
-	local _wp_content=$(wp config get WP_CONTENT_DIR --type=constant)
-	MEDIA=${_wp_content:-wp-content}/uploads
-}
-
-setup_media()
-{
-	# UID values change on every run, ensure the owner and group are set
-	# correctly on the media directory/volume.
-	get_media_dir
-	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}"
+	MEDIA=${media:-${content}/uploads}
+	CACHE=${content}/cache
+	mkdir -p "${MEDIA}" "${CACHE}"
+	chown -R ${WORKER_USER}:${WORKER_USER} "${MEDIA}" "${CACHE}"
 }
 
 setup_sandbox()
@@ -233,7 +229,7 @@ setup_debug()
 
 collect_static()
 {
-	get_media_dir
+	get_writable_dirs
 	local IFS=,
 	declare -a flags=(flist stats remove del)
 	test -t 1 && flags+=(progress2)
@@ -244,6 +240,7 @@ collect_static()
 		--exclude-from=- \
 		--exclude='*.php' \
 		--exclude="${MEDIA}" \
+		--exclude="${CACHE}" \
 		--exclude=/static/ \
 		--exclude=/vendor/ \
 		--force \
@@ -349,7 +346,6 @@ case "$1" in
 		create_config
 		setup_components
 		setup_debug
-		setup_media
 		collect_static
 		generate_static
 		setup_sandbox
