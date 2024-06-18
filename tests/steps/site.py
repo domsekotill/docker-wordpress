@@ -231,6 +231,17 @@ def is_plugin_installed(
 		assert site.backend.cli(addon.value, "is-active", name, query=True) == status.value
 
 
+@then("{path:Path} exists in the {container_name}")
+def check_file_exists(context: Context, path: Path, container_name: str) -> None:
+	"""
+	Check a file exists in the named container
+	"""
+	site = use_fixture(site_fixture, context)
+	container = getattr(site, container_name)
+	assert container.run(["sh", "-c", f"test -e {path}"]).returncode == 0, \
+		f"{path} not found in the {container_name}"
+
+
 @then("the email address of {user} is \"{value}\"")
 @then("the email address of {user} is '{value}'")
 def is_user_email(context: Context, user: str, value: str) -> None:
