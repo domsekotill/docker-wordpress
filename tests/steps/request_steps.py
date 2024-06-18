@@ -12,14 +12,21 @@ from __future__ import annotations
 
 import json
 from collections.abc import Collection
+from textwrap import dedent
 from typing import Any
+from typing import Iterator
 from typing import TypeVar
 
+from behave import fixture
 from behave import then
+from behave import use_fixture
 from behave import when
 from behave.runner import Context
 from behave_utils import URL
 from behave_utils import PatternEnum
+from behave_utils.http import redirect
+from requests import Session
+from wp import running_site_fixture
 
 T = TypeVar("T")
 
@@ -87,12 +94,29 @@ class ResponseCode(int, PatternEnum):
 		attr.update(additional)
 
 
+@fixture
+def requests_session(context: Context, /) -> Iterator[Session]:
+	"""
+	Create and configure a `requests` session for accessing site fixtures
+	"""
+	if hasattr(context, "session"):
+		assert isinstance(context.session, Session)
+		yield context.session
+		return
+	site = use_fixture(running_site_fixture, context)
+	with Session() as context.session:
+		redirect(context.session, site.url, site.address)
+		yield context.session
+
+
 @when("{url:URL} is requested")
 def get_request(context: Context, url: URL) -> None:
 	"""
 	Assign the response from making a GET request to "url" to the context
 	"""
-	context.response = context.session.get(context.site.url / url, allow_redirects=False)
+	site = use_fixture(running_site_fixture, context)
+	session = use_fixture(requests_session, context)
+	context.response = session.get(site.url / url, allow_redirects=False)
 
 
 @when("data is sent with {method:Method} to {url:URL}")
@@ -102,9 +126,11 @@ def post_request(context: Context, method: Method, url: URL) -> None:
 	"""
 	if context.text is None:
 		raise ValueError("Missing data, please add as text to step definition")
-	context.response = context.session.request(
+	site = use_fixture(running_site_fixture, context)
+	session = use_fixture(requests_session, context)
+	context.response = session.request(
 		method.value,
-		context.site.url / url,
+		site.url / url,
 		data=context.text.strip().format(context=context).encode("utf-8"),
 		allow_redirects=False,
 	)
@@ -136,7 +162,8 @@ def assert_header(context: Context, header_name: str, header_value: str) -> None
 	Assert that an expected header was received during a previous step
 	"""
 	if SAMPLE_SITE_NAME in header_value:
-		header_value = header_value.replace(SAMPLE_SITE_NAME, context.site.url)
+		site = use_fixture(running_site_fixture, context)
+		header_value = header_value.replace(SAMPLE_SITE_NAME, site.url)
 	headers = context.response.headers
 	assert header_name in headers, \
 		f"Expected header not found in response: {header_name!r}"
@@ -153,3 +180,15 @@ def assert_is_json(context: Context) -> None:
 		context.response.json()
 	except json.JSONDecodeError:
 		raise AssertionError("Response is not a JSON document")
+
+
+@then("the response body contains")
+def assert_body_contains(context: Context) -> None:
+	"""
+	Assert the response body of a previous step contains the text attached to the step
+	"""
+	if context.text is None:
+		raise ValueError("this step needs text to check")
+	text = dedent(context.text).encode("utf-8")
+	assert text in context.response.content, \
+		f"text not found in {context.response.content[:100]}"
