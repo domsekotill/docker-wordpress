@@ -10,6 +10,6 @@ Feature: Return favicons when requests
 		And the "Location" header's value is "http://test.example.com/wp-includes/images/w-logo-blue-white-bg.png"
 
 	Scenario: Owner supplied icon
-		Given /app/static/favicon.ico exists in the frontend
+		Given /app/static/wp/favicon.ico exists in the frontend
 		When /favicon.ico is requested
 		Then 200 is returned
