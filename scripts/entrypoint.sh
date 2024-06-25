@@ -344,8 +344,8 @@ case "$1" in
 	php-fpm)
 		timestamp "Starting Wordpress preparation"
 		create_config
-		setup_components
 		setup_debug
+		setup_components
 		collect_static
 		generate_static
 		setup_sandbox
