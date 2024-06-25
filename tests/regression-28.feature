@@ -1,4 +1,3 @@
-@wip
 Feature: Page cache directory
 	Ensure that the page cache directory at WP_CONTENT_DIR/cache is writable for
 	plugins, but is not served by the server.
