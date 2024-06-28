@@ -3,3 +3,5 @@
 
 # Running during development with docker-compose
 /compose-conf.d/
+
+.*_cache
