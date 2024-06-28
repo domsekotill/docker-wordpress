@@ -1,6 +1,5 @@
 [tool.isort]
 force_single_line = true
-known_first_party = "kilter.protocol"
 
 
 [tool.flakeheaven]
