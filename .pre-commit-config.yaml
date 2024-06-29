@@ -93,4 +93,4 @@ repos:
     args: ["--python-version=3.10"]
     additional_dependencies:
     - types-requests
-    - behave-utils ~=0.4.1
+    - behave-utils ~=0.6.1

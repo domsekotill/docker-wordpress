@@ -24,7 +24,6 @@ from behave import use_fixture
 from behave import when
 from behave.runner import Context
 from behave_utils.behave import PatternEnum
-from behave_utils.behave import register_pattern
 from behave_utils.docker import Cli
 from behave_utils.docker import Container
 from behave_utils.url import URL
@@ -35,9 +34,6 @@ from wp import site_fixture
 
 CONFIG_DIR = Path(__file__).parent.parent / "configs"
 DELAYED_SITE = URL("http://delayed.example.com")
-
-
-register_pattern("\S+", Path)
 
 
 class Addon(PatternEnum):
