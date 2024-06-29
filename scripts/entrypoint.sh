@@ -52,6 +52,11 @@ timestamp()
 	echo "[$(date --utc +'%Y-%m-%dT%H:%M:%S%z')] $*"
 }
 
+fatal()
+{
+	timestamp >&2 "FATAL:" "$@"
+}
+
 create_config()
 {
 	[[ -f wp-config.php ]] && unlink wp-config.php
@@ -115,16 +120,31 @@ setup_s3() {
 	[[ -v S3_MEDIA_SECRET ]] ||
 		return 0
 
-	wp config set S3_UPLOADS_BUCKET_URL "${S3_MEDIA_REWRITE_URL-$S3_MEDIA_ENDPOINT}"
+	local path_prefix=${S3_MEDIA_PREFIX+/${S3_MEDIA_PREFIX#/}}
+	local rewrite_url=${S3_MEDIA_ENDPOINT%/}${path_prefix}
 
-	wp config set S3_MEDIA_ENDPOINT "${S3_MEDIA_ENDPOINT}"
+	if [[ $S3_MEDIA_ENDPOINT =~ ^(https?://[^/]+)/([^/]+)/?(.*) ]]; then
+		[[ ${#BASH_REMATCH[3]} -gt 0 ]] && fatal \
+			"S3_MEDIA_ENDPOINT may only contain a bucket name as a path," \
+			"provide S3 path prefixes with S3_MEDIA_PREFIX"
+		wp config set S3_MEDIA_ENDPOINT "${BASH_REMATCH[1]}"
+		wp config set S3_UPLOADS_BUCKET "${BASH_REMATCH[2]}${path_prefix}"
+		wp config set S3_MEDIA_DISABLE_INJECTION false --raw
+	else
+		wp config set S3_MEDIA_ENDPOINT "${S3_MEDIA_ENDPOINT}"
+		# The plugin needs a value, but it is not injected into URLS
+		wp config set S3_UPLOADS_BUCKET "media-bucket"
+		wp config set S3_MEDIA_DISABLE_INJECTION true --raw
+	fi
+
+	# Workaround for hardcoded amazonaws.com URL in plugin
+	wp config set S3_UPLOADS_BUCKET_URL "${S3_MEDIA_REWRITE_URL-$rewrite_url}"
+
 	wp config set S3_UPLOADS_KEY "${S3_MEDIA_KEY}"
 	wp config set S3_UPLOADS_SECRET "${S3_MEDIA_SECRET}" --quiet
 
 	# Plugin requires something here, it's not used
 	wp config set S3_UPLOADS_REGION 'eu-west-1'
-
-	wp config set S3_UPLOADS_BUCKET "media-bucket"
 
 	# If there is anything in ./media, upload it
 	local contents=( media/* )
