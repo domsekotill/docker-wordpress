@@ -146,10 +146,11 @@ setup_s3() {
 	# Plugin requires something here, it's not used
 	wp config set S3_UPLOADS_REGION 'eu-west-1'
 
-	# If there is anything in ./media, upload it
-	local contents=( media/* )
+	# If there is anything in the media dir, upload it
+	get_writable_dirs
+	local contents=( "$MEDIA"/* )
 	[[ ${#contents[*]} -gt 0 ]] &&
-		wp s3-uploads upload-directory media
+		wp s3-uploads upload-directory "$MEDIA"
 
 	# Clear potentialy sensitive information from environment lest it leaks
 	unset ${!S3_MEDIA_*}
