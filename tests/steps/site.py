@@ -14,7 +14,6 @@ from base64 import b32encode as b32
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from tempfile import TemporaryDirectory
 
 from behave import fixture
@@ -89,10 +88,10 @@ def container_file(
 			return
 
 	# For unstarted containers, write to a temporary file and add it to the volumes mapping
-	with NamedTemporaryFile("wb") as temp:
-		temp.write(contents)
-		temp.flush()
-		container.volumes.append((Path(temp.name), path))
+	with TemporaryDirectory() as tdir:
+		temp = Path(tdir) / "temp.dat"
+		temp.write_bytes(contents)
+		container.volumes.append((temp, path))
 		yield
 
 
