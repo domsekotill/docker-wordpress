@@ -14,7 +14,6 @@ from base64 import b32encode as b32
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 from tempfile import TemporaryDirectory
 
 from behave import fixture
@@ -24,7 +23,6 @@ from behave import use_fixture
 from behave import when
 from behave.runner import Context
 from behave_utils.behave import PatternEnum
-from behave_utils.behave import register_pattern
 from behave_utils.docker import Cli
 from behave_utils.docker import Container
 from behave_utils.url import URL
@@ -35,9 +33,6 @@ from wp import site_fixture
 
 CONFIG_DIR = Path(__file__).parent.parent / "configs"
 DELAYED_SITE = URL("http://delayed.example.com")
-
-
-register_pattern("\S+", Path)
 
 
 class Addon(PatternEnum):
@@ -93,10 +88,10 @@ def container_file(
 			return
 
 	# For unstarted containers, write to a temporary file and add it to the volumes mapping
-	with NamedTemporaryFile("wb") as temp:
-		temp.write(contents)
-		temp.flush()
-		container.volumes.append((Path(temp.name), path))
+	with TemporaryDirectory() as tdir:
+		temp = Path(tdir) / "temp.dat"
+		temp.write_bytes(contents)
+		container.volumes.append((temp, path))
 		yield
 
 

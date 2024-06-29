@@ -65,8 +65,7 @@ add_filter(
 
 	function ( $params ) {
 		$params['endpoint'] = S3_MEDIA_ENDPOINT;
-		$params['bucket_endpoint'] = true;
-		$params['disable_host_prefix_injection'] = true;
+		$params['bucket_endpoint'] = S3_MEDIA_DISABLE_INJECTION;
 		$params['use_path_style_endpoint'] = true;
 		$params['debug'] = S3_DEBUG;
 		return $params;
