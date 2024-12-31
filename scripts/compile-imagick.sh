@@ -46,9 +46,13 @@ get_tarball()
 
 cd $(mktemp -d)
 
+CPPFLAGS=(
+	-Dphp_strtolower=zend_str_tolower
+)
+
 get_tarball | tar -xf- --strip-components=1
 phpize
-./configure
+./configure CPPFLAGS="${CPPFLAGS[*]}"
 make install
 
 echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini
