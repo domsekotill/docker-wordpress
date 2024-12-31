@@ -192,7 +192,7 @@ get_writable_dirs()
 {
 	[[ -v MEDIA && -v CACHE ]] && return
 	local content=$(
-		wp config get WP_CONTENT_DIR --type=constant || echo wp-content
+		wp config get WP_CONTENT_DIR --type=constant 2>/dev/null || echo wp-content
 	)
 	local media=$(
 		wp config get UPLOADS --type=constant ||
